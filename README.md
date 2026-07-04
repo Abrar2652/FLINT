@@ -16,7 +16,6 @@ no GPU: the entire CTA model is ~46 KB and trains in seconds on CPU.
 
 ## Repository layout
 ```
-paper/flint/                 the paper: LaTeX (main.tex), tables/, figures/, insights.tex
 src/flint/                   the FLINT library (importable package `flint`)
   data/                        loaders, Wikidata KG cache, splits, candidate generation
   graph/                       closed-form CTA/CPA features
