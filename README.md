@@ -24,7 +24,6 @@ src/flint/                   the FLINT library (importable package `flint`)
   utils/                       paths, seeding
 scripts/                     one script per experiment (flint_*, llm_*, make_*, sig_vs_sota) + data-prep
 experiments/flint/           results.json (single source of truth) + per-table dumps + LLM panel
-docs/                        data / schema / positioning specs
 configs/default.yaml         run configuration
 REPRODUCE.md                 one command per paper result
 data/                        local Wikidata caches (git-ignored; build via scripts below)
@@ -48,11 +47,7 @@ per dataset are in [`docs/DATASET_FACTS.md`](docs/DATASET_FACTS.md).
 | **ToughTables / 2T_WD** (SemTab) | CTA robustness (no CPA GT) | 180 | Zenodo — https://zenodo.org/records/4246370 |
 | **tFood** (SemTab 2023) | domain-specific corroboration | — | Zenodo — https://zenodo.org/records/10048187 |
 
-**Baselines & provenance.** The GRAMS+ / MTab / DAGOBAH reference numbers and the 250WT
-pipeline come from the released **GRAMS+ artifact** — https://github.com/binh-vu/iswc24-gp
-(also https://purl.org/gramsplus). For a like-for-like comparison the snapshots are Wikidata
-dump **2023-06-19** and Wikipedia dump 2023-06-20. Please cite each dataset and follow its
-individual license.
+
 
 ## Quickstart
 ```bash
