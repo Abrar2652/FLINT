@@ -1,0 +1,31 @@
+% === Table: CPA on 250WT (column-property annotation) ======================
+% PROTOCOL: 5-fold CV on 250WT, gold entities, SBERT, mean+/-std over 5 seeds.
+%   Exact micro P/R/F1. The "+NULL-neg" row adds negative (NULL) supervision for
+%   candidate column-pairs that have kg_triple edges but no gold relation.
+% NUMBERS: experiments/gate3/cpafix_seed{0..4}.log (2026-06-05). Pre-fix CPA from
+%   the kg_triple-only run (0.465). GRAMS+ = published ISWC'24 Table 1 (ref only).
+% CAP: 29.1% of gold CPA pairs are entity->literal (no kg_triple edge) -> recall is
+%   ceilinged at ~0.71 until the entity->literal edge is added (see insights).
+\begin{table}[t]
+\centering
+\caption{Column-property annotation (CPA) on 250WT, exact micro P/R/F1, 5 seeds.
+NULL (negative) supervision lifts F1 by $+0.11$ at high precision; the
+entity$\to$literal edge adds a further $+0.01$. The remaining gap to GRAMS+ is now
+a \emph{recall} problem (precision $0.73$ vs recall $0.49$): the model is
+NULL-conservative, not candidate-limited.}
+\label{tab:cpa-250wt}
+\begin{tabular}{lccc}
+\toprule
+Method & Precision & Recall & micro-F1 \\
+\midrule
+OC-GNN (kg\_triple only)            & --    & --    & $0.465{\scriptstyle\pm0.003}$ \\
+\quad + NULL-neg                    & $0.721{\scriptstyle\pm0.012}$ & $0.483{\scriptstyle\pm0.008}$ & $0.579{\scriptstyle\pm0.006}$ \\
+\quad\textbf{+ entity$\to$literal edge} & $0.733{\scriptstyle\pm0.021}$ & $0.489{\scriptstyle\pm0.007}$ & $\mathbf{0.587}{\scriptstyle\pm0.008}$ \\
+\midrule
+GRAMS+ (published)$^{\dagger}$      & --    & --    & 0.664 \\
+\bottomrule
+\end{tabular}
+\\[2pt]
+{\footnotesize $^{\dagger}$Published 250WT CPA (ISWC'24, Table 1); different
+protocol -- reference, not a same-setting comparison.}
+\end{table}

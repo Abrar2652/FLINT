@@ -1,0 +1,25 @@
+% === Table: Robustness to entity-linking noise (contribution #3) ===========
+% PROTOCOL: train CLEAN, test under candidate perturbation (gold->random distractor
+%   at probability = noise intensity). 250WT, CTA cscore. test fold of the frozen
+%   5-fold split. PRELIMINARY: hashing features, seed 0 (SBERT/multi-seed pending).
+% NUMBERS: experiments/gate5/robustness_hashing.json (2026-06-05).
+% STATUS: NEGATIVE result as-is -> see paper/insights.tex (motivates noise-aug training).
+\begin{table}[t]
+\centering
+\caption{CTA under increasing entity-linking noise (preliminary, seed 0). The
+clean-trained OC-GNN degrades sharply while majority vote -- intrinsically robust
+to minority noise -- is stable. This negative result motivates noise-augmented
+training (\S\ref{sec:robustness}); it is the controlled analogue of the CTA
+collapse seen on ToughTables.}
+\label{tab:robustness}
+\begin{tabular}{lccc}
+\toprule
+Noise intensity & 0.0 & 0.2 & 0.4 \\
+\midrule
+Majority vote        & 0.682 & 0.676 & 0.589 \\
+OC-GNN (clean-trained) & 0.687 & 0.350 & 0.282 \\
+\midrule
+$\Delta$ (OC-GNN $-$ vote) & $+0.005$ & $-0.326$ & $-0.307$ \\
+\bottomrule
+\end{tabular}
+\end{table}

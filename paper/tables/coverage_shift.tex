@@ -1,0 +1,28 @@
+% === Table: conformal coverage UNDER DISTRIBUTION SHIFT ====================
+% PROTOCOL: calibrate on CLEAN data (intensity 0); evaluate coverage on TEST under
+%   increasing entity-linking noise. "clean" = clean-calibrated (vanilla); "shift-
+%   aware" = q_hat recalibrated on a calib set at the test intensity. alpha=0.1
+%   (target 0.90), SBERT, 250WT test fold. PRELIMINARY: single seed/fold (multi-seed
+%   curves for camera-ready). NUMBERS: scripts/run_coverage_shift.py (2026-06-11).
+\begin{table}[t]
+\centering
+\caption{Conformal coverage under entity-linking shift ($\alpha{=}0.1$, target
+$0.90$). Clean-calibrated coverage degrades as noise rises -- the softmax threshold
+worst, vanilla conformal less so -- because shift breaks exchangeability and voids
+the finite-sample guarantee. Recalibrating at the test intensity (\emph{shift-
+aware}) restores coverage toward target. This is what the coverage guarantee buys
+that a tuned threshold cannot.}
+\label{tab:coverage-shift}
+\begin{tabular}{lccc|cc}
+\toprule
+\multicolumn{1}{c}{} & \multicolumn{3}{c|}{clean-calibrated (vanilla)} & \multicolumn{2}{c}{shift-aware} \\
+Noise & Softmax & LAC & APS-rand & LAC & APS-rand \\
+\midrule
+0.0 & 0.857 & 0.904 & 0.904 & 0.904 & 0.912 \\
+0.1 & 0.843 & 0.911 & 0.919 & 0.959 & 0.943 \\
+0.2 & 0.843 & 0.911 & 0.886 & 0.976 & 0.967 \\
+0.3 & 0.731 & 0.789 & 0.789 & \textbf{0.894} & 0.878 \\
+0.4 & 0.754 & 0.813 & 0.772 & \textbf{0.870} & 0.846 \\
+\bottomrule
+\end{tabular}
+\end{table}

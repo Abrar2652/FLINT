@@ -1,0 +1,3 @@
+  parse-failure fallback: 22/723 (3.0%)
+  LLM-CTA micro-F1 = 0.598  macro = 0.593
+  LLM-CPA micro-F1 = 0.303  (P=0.342 R=0.272)

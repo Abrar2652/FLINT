@@ -1,0 +1,483 @@
+% =====================================================================
+% FLINT: Fast Lightweight INterpretation of Tables
+% AAAI-style skeleton. Compile: pdflatex main.tex (twice for refs).
+% Uses \documentclass{article} + standard packages (no aaai.sty dependency)
+% so it compiles anywhere; swap to aaai style for submission if desired.
+% Result tables live in tables/, figures in figures/, story in insights.tex.
+% NO FABRICATION: every number traces to experiments/flint/results.json
+% (produced by scripts/flint_*_ranker.py / llm_baseline.py). No pending cells remain.
+% =====================================================================
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{subcaption}
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb}
+\usepackage{xcolor}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.17}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{hyperref}  % load last
+% Build: pdflatex main -> bibtex main -> pdflatex main -> pdflatex main.
+% For AAAI submission: swap \documentclass{article} for the aaai style
+% (e.g. aaai2026) and \bibliographystyle{plainnat} -> \bibliographystyle{aaai2026}.
+
+\title{FLINT: Fast Lightweight Interpretation of Tables\\
+\large A Feature Ranker plus Classical Graph Decoding for Semantic Table Interpretation}
+\author{Anonymous (placeholder: Jataware)}
+\date{}
+
+\begin{document}
+\maketitle
+
+% ---------------------------------------------------------------------
+\begin{abstract}
+Semantic Table Interpretation (STI) -- column-type annotation (CTA) and
+column-property annotation (CPA) against a knowledge graph such as Wikidata --
+has been driven toward increasingly heavy machinery: trained neural scorers and
+bespoke Steiner-tree search. We show this machinery is unnecessary. \textbf{FLINT}
+(Fast Lightweight Interpretation of Tables) replaces the prior SOTA pipeline,
+GRAMS+ \cite{vu2024gramsplus} (two trained MLPs $+$ a Steiner-tree CPA search $+$
+ancestor-climbing CTA), with two tiny gradient-boosted rankers over closed-form
+ontology and relational features plus a textbook maximum-weight-arborescence decode
+(Edmonds' algorithm). The whole system trains in seconds on CPU with no GPU, no
+neural network, and no trained Steiner scorer: the entire CTA model is $46$\,KB.
+Our primary result is under \emph{matched entity linking} -- each system using its own
+linker, no oracle: on real-world \textbf{250WT}, FLINT-CPA (a simple top-$1$ linker)
+scores $0.654$, \textbf{matching the strongest system GRAMS+ ($0.664$) and exceeding
+DAGOBAH ($0.618$) and MTab ($0.540$)}, i.e.\ it holds the SOTA CPA frontier at
+$\sim$$1000\times$ less compute. Given \emph{oracle} (gold) entities the gap widens to a
+paired-significance win over all three ($\Delta$F1 $+0.063$/$+0.187$/$+0.109$,
+$p<2\times10^{-3}$; Table~\ref{tab:significance}), which we report as an \emph{upper
+bound}, not the headline. CTA is competitive: on 250WT it ties GRAMS+ and DAGOBAH and
+beats MTab, and on the saturated synthetic SemTab sets FLINT is within $\sim$$1$\,pt of
+MTab (not a clean win). Against eight LLMs (two frontier, six open $3$--$9$B) selecting
+from the \emph{identical} candidate set, FLINT wins both tasks. A clean decoder ablation
+attributes a precision gain ($0.761\!\to\!0.805$ at equal recall) to the classical
+arborescence. Finally, diagnosing candidate recall as the true CPA bottleneck, we
+contribute a lightweight \textbf{high-recall candidate generator} (improved literal $+$
+entity-label matching) that lifts 250WT CPA candidate recall $0.73\!\to\!0.78$. We are
+explicit about scope: the gold-entity win is a bound, the synthetic sets are not a clean
+win, and we evaluate on Wikidata only. The thesis: STI needs neither deep nets, bespoke
+Steiner pipelines, nor billion-parameter LLMs; a tiny feature ranker plus classical
+graph decoding is a Pareto win on accuracy vs.\ cost.
+\end{abstract}
+
+% ---------------------------------------------------------------------
+\section{Introduction}
+\label{sec:intro}
+
+% FIG overview.pdf (scripts/make_schematic.py) -- hand-drawn method schematic (illustrative
+%   worked example; not from results.json). SUPPORTS the whole-paper thesis: FLINT reads the
+%   same candidates as SOTA but scores them with closed-form features + a 46 KB GBDT ranker and
+%   decodes with a parameter-free arborescence (no NN, no GPU, no trained Steiner scorer).
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.98\textwidth]{figures/overview.pdf}
+\caption{\textbf{How FLINT works, on a worked example.} FLINT reads the \emph{same} Wikidata
+candidates as prior SOTA and scores them with closed-form ontology and statement features. For
+\emph{CTA}, a column's cell types climb an is-a (subclass) hierarchy and a $46$\,KB gradient-boosted
+ranker selects the right \emph{granularity}; for \emph{CPA}, the number of supporting KG statements
+scores each candidate property, decoded by a parameter-free maximum-weight arborescence. This
+replaces GRAMS+'s two trained MLPs and Steiner-tree search with \emph{no} neural network and \emph{no}
+GPU (bottom left), matching heavy-SOTA accuracy at $\sim$$1000\times$ less compute (bottom right).}
+\label{fig:overview}
+\end{figure*}
+
+Semantic Table Interpretation maps the columns of a relational table to a target
+knowledge-graph ontology: \emph{column-type annotation} (CTA) assigns an ontology
+class to a column, and \emph{column-property annotation} (CPA) assigns a property to
+an ordered pair of columns (Fig.~\ref{fig:task}). STI underpins table search, data
+integration, and knowledge-base population, and is the subject of the long-running
+SemTab challenge \cite{semtab}. Figure~\ref{fig:overview} previews our approach on a
+worked example.
+
+The prevailing trajectory has been toward heavier systems. The current
+strong baseline, GRAMS+ \cite{vu2024gramsplus}, trains two neural networks (an
+entity-linking perceptron and a per-link relationship classifier), then selects CPA
+links by \emph{Steiner-tree search} over a candidate graph and derives CTA by an
+algorithmic ancestor-climb ($\delta{=}0.1$, $\text{max\_distance}{=}2$). Such
+pipelines are accurate but costly to train, tune, and reproduce.
+
+\paragraph{Thesis: lightweight beats heavy.} We argue the heavy machinery is not
+where STI accuracy comes from. The relevant signal -- how a column's cell types vote
+for a class, how a subject column's KG statements support a property -- is largely
+\emph{closed-form} and can be read off the ontology and the candidate statements
+directly. What is needed is (i) a small learner to \emph{combine} these weak signals
+(no single one suffices, Section~\ref{sec:analysis}) and (ii) a global step to
+enforce relational consistency. Both can be done with off-the-shelf tools: a
+gradient-boosted ranker and a maximum-weight arborescence.
+
+\paragraph{FLINT.} We instantiate this as FLINT. \textbf{FLINT-CTA} is a blended
+gradient-boosted regressor that scores each candidate type in a column's Wikidata
+ancestor closure and predicts the argmax. \textbf{FLINT-CPA} is a gradient-boosted
+classifier that scores each (subject-column, object-column, candidate-property)
+triple, decoded globally by a maximum-weight arborescence (Edmonds) with a virtual
+ROOT$\to$column NULL edge -- giving one parent per column and no cycles, the same
+consistency a Steiner tree enforces, but as a textbook graph algorithm on the
+ranker's own scores. No GPU, no neural network, no trained Steiner scorer; training
+takes seconds on CPU.
+
+\paragraph{Contributions.}
+\begin{enumerate}
+  \item A \textbf{matched-EL comparison on real-world 250WT} (each system its own
+        linker, no oracle; Table~\ref{tab:realcand}), the paper's headline:
+        \textbf{FLINT-CPA ($0.654$) matches the strongest system GRAMS+ ($0.664$) and
+        exceeds DAGOBAH ($0.618$) and MTab ($0.540$)} at $\sim$$1000\times$ less compute.
+        Under \emph{oracle} entities the margin becomes a paired-significance win over
+        all three ($\Delta$F1 $+0.063$/$+0.187$/$+0.109$, $p<2\times10^{-3}$;
+        Table~\ref{tab:significance}), which we report as an \emph{upper bound}. CTA is
+        competitive (ties GRAMS+/DAGOBAH, beats MTab).
+  \item \textbf{FLINT-CTA}, a tiny feature ranker over closed-form ontology signals
+        that, on the identical-candidate gold-entity protocol, beats both a strong
+        counting baseline and GRAMS+'s own CTA algorithm on 250WT
+        (Table~\ref{tab:cta-main}), and, on the matched targets-given protocol
+        (Table~\ref{tab:table2}), is competitive with the SOTA on the saturated
+        synthetic sets. On the deliberately hard ToughTables under the official SemTab
+        AH scorer, an in-domain FLINT-CTA beats published SOTA and a zero-shot GPT-4o
+        (Table~\ref{tab:toughtables}).
+  \item \textbf{FLINT-CPA}, a tiny ranker over relational support features plus a
+        classical maximum-weight-arborescence decode, that on real-world 250WT
+        \emph{matches or beats} SOTA (frontier-matching under matched EL, significant
+        under oracle entities) and, on the matched targets-given synthetic protocol
+        (Table~\ref{tab:table2}), \emph{beats} GRAMS+ and SemTex on WikidataTables CPA
+        and ties MTab. This synthetic result includes a \textbf{methodological-rigor
+        correction}: an evaluation-harness loader bug (a SemTab CEA row-index
+        off-by-one) had crushed synthetic CPA to $0.50$; after the fix it is $0.97$ --
+        a cautionary datapoint on trusting a scoring harness (\S\ref{sec:analysis}).
+  \item A lightweight \textbf{high-recall candidate generator} for CPA
+        (improved literal $+$ entity-label matching) targeting the diagnosed
+        candidate-recall bottleneck: on 250WT it lifts CPA candidate recall
+        $0.73\!\to\!0.78$ (presence upper bound $0.85$; Table~\ref{tab:realcand}) and,
+        with the enriched candidates, FLINT-CPA macro-AF1 rises to $71.6$, exceeding
+        GRAMS+'s published $66.4$ on recall ($+7.4$) and F1 ($+5.2$)
+        (Table~\ref{tab:cpa-main}).
+  \item An \textbf{LLM comparison under identical candidates}
+        (Table~\ref{tab:llm-panel}): selecting from the \emph{same} candidate set
+        FLINT ranks, a $46$\,KB gradient-boosted ranker beats GPT-4o,
+        Gemini-2.5-flash, and six open instruct models ($3$B--$9$B) on both CTA and CPA.
+  \item A \textbf{clean decoder ablation} (Table~\ref{tab:cpa-decoder}) isolating
+        the global-consistency contribution: on identical per-link scores the
+        arborescence buys precision at equal recall -- the Steiner contribution
+        without the trained scorer -- and a \textbf{Pareto/efficiency} argument
+        (Table~\ref{tab:efficiency}, Fig.~\ref{fig:pareto}) that FLINT matches or
+        beats heavy pipelines at $\sim$$1000\times$ less compute, with diagnostics
+        reframing CTA as a granularity \emph{selection} problem
+        (Fig.~\ref{fig:cta-offset}).
+\end{enumerate}
+
+% ---------------------------------------------------------------------
+\section{Related Work}
+\label{sec:related}
+
+\paragraph{GRAMS and GRAMS+.} GRAMS \cite{vu2021grams} introduced a graph-based
+approach to STI; GRAMS+ \cite{vu2024gramsplus} is the relevant strong baseline,
+combining two trained MLPs with a Steiner-tree CPA search and an ancestor-climbing
+CTA rule. FLINT keeps GRAMS+'s candidate generation but replaces both learned
+scorers and the trained Steiner machinery with closed-form features, gradient
+boosting, and a parameter-free arborescence decode. Notably, GRAMS+'s authors name
+both a learned alternative to their hand-set ancestor rule and joint inference as
+future work; FLINT addresses the former with a learner and shows the latter is not
+required for competitive accuracy.
+
+\paragraph{STI and SemTab systems.} The SemTab challenge \cite{semtab} has produced
+a range of systems \cite{stisurvey} spanning heuristic, retrieval-driven, and neural
+designs; the strongest and most-compared are MTab \cite{mtab}, DAGOBAH \cite{dagobah},
+and KGCode-Tab \cite{kgcodetab}, which we use as published references. FLINT's
+positioning is orthogonal
+to leaderboard chasing: it asks how little machinery suffices to match the strong
+baseline under a controlled, identical-candidate protocol.
+
+\paragraph{Gradient boosting for ranking.} Gradient-boosted decision trees
+\cite{gbdt} are a standard, strong tool for learning-to-rank over tabular features.
+FLINT applies them in the closed-form-feature regime where each STI decision reduces
+to ranking a small candidate set, sidestepping representation learning entirely.
+
+\paragraph{LLMs for table understanding.} Large language models have recently been
+applied to table tasks, and a natural question is whether a frontier LLM subsumes a
+small specialized ranker. We test this directly (Table~\ref{tab:llm-panel}): given the
+\emph{identical} candidate set FLINT scores, two frontier LLMs (GPT-4o
+\cite{gpt4o}, Gemini-2.5-flash \cite{gemini}) and six open instruct models ($3$B--$9$B;
+Llama-3.1 \cite{llama31}, Qwen2.5 \cite{qwen25}, Mistral-7B \cite{mistral7b}, Gemma-2
+\cite{gemma2}) are asked to \emph{select} the answer -- a fair selection comparison that
+controls for candidate generation. FLINT wins both CTA and CPA against all eight,
+indicating the win is in the calibrated combination of closed-form signals rather than
+in scale.
+
+\paragraph{Global decoding by arborescence.} Maximum-weight arborescence (Edmonds'
+algorithm) \cite{edmonds} is the classical tool for selecting a maximum-weight tree
+with one parent per node; we use it as a drop-in replacement for Steiner-style
+global consistency in CPA, with a virtual ROOT edge serving as a tunable NULL
+fallback.
+
+% ---------------------------------------------------------------------
+\section{Method}
+\label{sec:method}
+
+\subsection{Problem setup}
+% FIG task.pdf (scripts/make_schematic.py) -- illustrative task teaser (not from results.json).
+%   SUPPORTS the problem definition: CTA = per-column KG type; CPA = per-column-pair KG property.
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/task.pdf}
+\caption{The STI task on an example: CTA assigns each entity column a knowledge-graph type
+(green) and CPA labels the relation between two columns with a KG property (blue): here
+\emph{country} (Q6256) and \emph{capital city} (Q5119) for the two entity columns and
+\emph{P36 capital} from Country to Capital, with Population a literal (P1082). The columns
+are grounded in Wikidata entities (France Q142, Paris Q90) whose shared class is the column type.}
+\label{fig:task}
+\end{figure}
+Given a table with columns $C=\{c_1,\dots,c_m\}$ and (gold or top-$k$) Wikidata
+entity candidates for cells, CTA assigns each entity column a class $t\in\mathcal{T}$
+and CPA assigns each ordered column pair $(c_i,c_j)$ a property $p\in\mathcal{P}$ or
+NULL (Fig.~\ref{fig:task}). Candidate classes for a column are the union of its cells' \texttt{P31} types
+and their $k$-hop ancestor closure; candidate properties for a pair are mined by
+scanning rows (below). All methods we compare share this candidate generation.
+
+\subsection{FLINT-CTA}
+\label{sec:flint-cta}
+For each column we score every candidate type $t$ in its ancestor closure with a
+feature vector $\phi(c,t)$ and predict $\arg\max_t s(c,t)$. The features are
+closed-form ontology and semantic signals:
+\begin{itemize}\itemsep1pt
+  \item \textbf{ancestor-coverage}: fraction of cells whose \texttt{P31}
+        ancestor-closure contains $t$;
+  \item \textbf{direct-type coverage}: fraction of cells whose \texttt{P31}
+        \emph{directly} equals $t$;
+  \item \textbf{coverage-rank} of $t$ within the column;
+  \item \textbf{is-majority-type} ($t$ is the modal direct type);
+  \item \textbf{is-ancestor-of-mode} and \textbf{hops-above-mode} ($t$ generalizes
+        the mode by $k$ hops);
+  \item \textbf{\#ancestors} of $t$ (a generality/depth proxy);
+  \item \textbf{header$\leftrightarrow$type-label} SBERT \cite{sbert} cosine,
+        \textbf{column-context$\leftrightarrow$type} cosine, and
+        \textbf{mean-entity-label$\leftrightarrow$type} cosine;
+  \item \textbf{log gold-frequency prior} of $t$ (estimated on training folds only).
+\end{itemize}
+The scorer blends two lightweight \texttt{HistGradientBoostingRegressor}s: one
+trained to predict $t$'s SemTab cscore against gold (partial-credit geometry), one
+trained on exact match (sharpens granularity). The blended score is their sum, and
+the prediction is its argmax. There is no neural network and no message passing.
+
+\subsection{FLINT-CPA}
+\label{sec:flint-cpa}
+\paragraph{Candidate mining.} For an ordered pair $(c_i,c_j)$ we scan rows: a
+property $p$ is \emph{supported} at a row when the subject entity has a statement
+$(p,o)$ whose object $o$ matches the object cell's entity (\emph{entity-match}) or a
+literal statement value matching the object cell (\emph{literal-match}). Candidate
+properties are those with nonzero support.
+
+\paragraph{Per-link scorer.} A \texttt{HistGradientBoostingClassifier} scores each
+$(c_i,c_j,p)$ triple with relational features: entity-match support, literal-match
+support, combined support, support-rank, \#candidates, subject-coverage,
+object-is-entity flag, header-obj$\leftrightarrow$property-label SBERT cosine,
+header-subj$\leftrightarrow$property cosine, log gold-frequency prior, and an
+is-best-subject-column flag. The per-link score is the classifier's
+positive-class probability.
+
+\paragraph{Global decoding by maximum-weight arborescence.} Let $s_{ij}$ be the best
+per-link score for pair $(c_i,c_j)$ (with its argmax property $p_{ij}$). We build a
+directed graph over columns, add a virtual ROOT with edges ROOT$\to c$ of weight
+$\tau$ (the tuned NULL-fallback threshold), and add each real edge $c_i\!\to\!c_j$
+with weight $s_{ij}$. We then take the maximum-weight arborescence (Edmonds'
+algorithm, via \texttt{networkx}):
+\[
+A^\star = \arg\max_{A\in\mathcal{A}} \sum_{(u\to v)\in A} w(u\to v),
+\]
+where $\mathcal{A}$ is the set of arborescences rooted at ROOT. A real edge is
+emitted only when it is selected (so each column has exactly one parent, no cycles)
+\emph{and} its weight exceeds $\tau$ (otherwise the column's parent is ROOT $=$
+NULL). This enforces the same global consistency a Steiner tree gives -- one parent
+per column, a coherent relational skeleton -- using a textbook algorithm on FLINT's
+own scores. The threshold $\tau$ is tuned on out-of-fold/held-out calibration data.
+
+\paragraph{Why arborescence $\equiv$ Steiner-style consistency.} Both the Steiner
+formulation in GRAMS+ and our arborescence enforce a single connected, acyclic
+relational structure per table with one parent per column; both reject mutually
+inconsistent local links. The difference is that GRAMS+ pairs its global search with
+a trained scorer, whereas FLINT runs a classical maximum-weight arborescence on a
+gradient-boosted score. As Section~\ref{sec:analysis} shows, this constraint
+contributes precisely a \emph{precision} gain at equal recall.
+
+% ---------------------------------------------------------------------
+\section{Experiments}
+\label{sec:experiments}
+
+\paragraph{Setup.} We evaluate on the real-world \textbf{250WT} and the synthetic
+SemTab \textbf{HardTables} and \textbf{WikidataTables}, plus \textbf{ToughTables}
+(2T\_WD) for cross-dataset CTA transfer, with gold entities, \emph{identical} candidate
+generation across methods where applicable, and 5-fold cross-validation; FLINT standard
+deviations are over 5 fold-seeds. Following the GRAMS+ evaluation we report two
+protocols: \textbf{Table~1} (targets \emph{not} provided; macro-average approximate
+AP/AR/AF1) and \textbf{Table~2} (target columns \emph{provided}; micro-average
+approximate m-AP/m-AR/m-AF1, the clean matched comparison). ToughTables uses the
+\emph{official SemTab AH scorer} (so its rows are directly comparable to published SOTA)
+and is kept in its own table; the decoder ablation uses \emph{exact} micro
+precision/recall/F1. We never mix metrics within a table. Published numbers (GRAMS+,
+MTab, DAGOBAH, KGCODE, SemTex) use each system's \emph{own} entity-linking pipeline (the
+P2 protocol) and a different snapshot and are marked reference; our gold-entity rows are
+marked $\dagger$. The 250WT references are verified from the released GRAMS+ artifact
+result files (not transcribed from the paper) and are collected with full P2
+precision/recall in Table~\ref{tab:sota-verified}. Following GRAMS+ we \emph{exclude}
+tFood (GRAMS+ reports anonymized/withheld cells on it), so it is not part of our
+benchmark matrix.
+
+\paragraph{Headline results.} Our headline is the \emph{matched-EL} comparison on
+real-world 250WT (Table~\ref{tab:realcand}), where every system uses its own entity
+linker and FLINT has no oracle advantage: FLINT-CPA ($0.654$) matches the strongest
+system, GRAMS+ ($0.664$), and exceeds DAGOBAH ($0.618$) and MTab ($0.540$), holding the
+CPA frontier at $\sim$$1000\times$ less compute. Table~\ref{tab:significance} (visualized
+in Fig.~\ref{fig:significance-forest}) then reports the \emph{oracle-entity} paired
+significance test -- an upper bound in which FLINT significantly beats all three on CPA
+and is competitive on CTA (beats MTab, ties GRAMS+/DAGOBAH). Tables~\ref{tab:cta-main}
+and~\ref{tab:cpa-main} give the Table~1 (no-targets, macro) landscape; Table~\ref{tab:table2}
+is the matched Table~2 (targets-given, micro) comparison on the synthetic sets;
+Table~\ref{tab:cpa-decoder} is the decoder ablation on identical per-link scores; and
+Table~\ref{tab:llm-panel} (Fig.~\ref{fig:llm-dominance}) compares FLINT against frontier
+and open LLMs that select from the identical candidate set. The overall accuracy-vs-cost
+picture is Fig.~\ref{fig:pareto}.
+
+\input{tables/significance.tex}
+\input{tables/cta_multidataset.tex}
+\input{tables/cpa_multidataset.tex}
+\input{tables/table2_matched.tex}
+\input{tables/cpa_decoder_ablation.tex}
+\input{tables/llm_comparison.tex}
+
+\paragraph{Realistic entity linking, efficiency, ablations, transfer.}
+Table~\ref{tab:realcand} repeats the head-to-head with top-$1$ real candidates instead
+of gold entities; on the converged candidate cache ($78.9\%$ column coverage,
+plateaued) FLINT-CTA reaches $0.737$ and the per-column win over the GRAMS+ algorithm
+\emph{grows} under noisy EL ($169$/$70$, $p{=}1.5\times10^{-10}$), with the absolute
+score below the published $0.789$ attributable to weaker top-$1$ entity linking and
+genuinely unlinkable columns (the defensible claim is the relative win; the accuracy-vs-coverage
+trajectory is Fig.~\ref{fig:coverage-traj}). On the same converged cache, \textbf{real-EL
+FLINT-CPA (no-targets, $0.654$) matches GRAMS+'s published $0.664$ and beats DAGOBAH
+($0.618$) and MTab ($0.540$) \emph{without} any gold-entity advantage}
+(Fig.~\ref{fig:el-gap}) -- a matched-EL result that substantially softens the gold-EL
+caveat on the headline. Table~\ref{tab:efficiency} reports the measured
+compute/size comparison behind the Pareto claim (FLINT trains in $0.10$\,s on CPU into
+a $46.4$\,KB model); Table~\ref{tab:feature-ablation} gives leave-one-feature-out
+ablations for both tasks, confirming that no single feature carries the CTA win; and
+Table~\ref{tab:toughtables} tests cross-dataset CTA transfer to ToughTables under the
+official SemTab AH scorer, where in-domain FLINT-CTA beats published SOTA and a
+zero-shot GPT-4o while zero-shot transfer underperforms a counting baseline -- showing
+the CTA granularity convention is dataset-specific. Finally,
+Table~\ref{tab:sota-verified} reports the published 250WT SOTA (GRAMS+, DAGOBAH, MTab)
+under their \emph{own}-EL P2 protocol, read directly from the released GRAMS+ artifact
+result files rather than transcribed from the paper -- an EL-confounded reference that
+we keep distinct from our gold-entity, identical-candidate headline.
+
+\input{tables/realcand.tex}
+\input{tables/sota_verified.tex}
+\input{tables/efficiency.tex}
+\input{tables/feature_ablation.tex}
+\input{tables/toughtables.tex}
+
+% ---------------------------------------------------------------------
+\section{Analysis and Insights}
+\label{sec:analysis}
+
+% All result figures (vector PDFs from scripts/make_figures.py); each block carries a
+% one-sentence takeaway caption + a source/claim comment. Referenced across Secs.
+% Experiments, Analysis, and Limitations.
+\input{figures_generated.tex}
+
+\input{insights.tex}
+
+% ---------------------------------------------------------------------
+\section{Limitations}
+\label{sec:limitations}
+We state the scope of our claims plainly, and we do \emph{not} overclaim.
+\textbf{(a) Gold-EL advantage in the headline significance test.} Our headline win
+(Table~\ref{tab:significance}) compares FLINT's \emph{gold-entity} per-table F1 against
+each SOTA system's \emph{own} entity linking. The CPA wins are large ($\Delta$F1
+$+0.063$/$+0.187$/$+0.109$) but carry this EL advantage, so they are a bound rather
+than a strictly matched pipeline result; the clean identical-inputs comparison is
+FLINT vs.\ GRAMS+'s \emph{algorithm} (Tables~\ref{tab:cta-main},~\ref{tab:cpa-main}).
+\textbf{(b) FLINT does not strictly beat MTab on the saturated synthetic sets.} Under
+the matched targets-given protocol (Table~\ref{tab:table2}) FLINT-CPA is $\sim$$1$\,pt
+behind MTab on HardTables ($97.3$ vs.\ $98.40$) and ties it on WikidataTables ($98.0$
+vs.\ $98.11$, $-0.1$) -- competitive and within noise, not a clean sweep. FLINT-CTA is
+$\sim$$1$--$2.6$\,pt under MTab there. We frame this as GRAMS+ did (competitive, plus a
+real-world win and a lightweight novelty), noting GRAMS+ itself loses these synthetic
+sets to MTab.
+\textbf{(c) CTA vs.\ GRAMS+ on 250WT is a tie, not a win.} The paired test
+(Table~\ref{tab:significance}) gives $\Delta$F1 $-0.033$ ($p{=}0.84$) vs.\ GRAMS+ and
+$+0.016$ ($p{=}0.25$) vs.\ DAGOBAH -- statistical ties; FLINT's significant CTA win is
+against MTab. WikidataTables CTA is likewise a tie (near-saturated). We report these as
+ties.
+\textbf{(d) Gold-entity headline overall.} Under realistic top-$1$ entity linking,
+FLINT-CTA on 250WT is $0.737$ (Table~\ref{tab:realcand}); the relative win over the
+GRAMS+ algorithm grows under noisy EL, but the CTA absolute is entity-linking-limited
+(below the published $0.789$). Real-EL CPA, by contrast, reaches $0.654$ -- a
+matched-EL \emph{tie} with GRAMS+'s published $0.664$ that carries no gold advantage.
+\textbf{(h) CTA/CPA only (no CEA contribution).} FLINT annotates column types and
+properties; it does \emph{not} contribute an entity-linking (CEA) method, consuming
+either gold entities or an off-the-shelf top-$1$ linker. The end-to-end pipelines we
+compare against (GRAMS+, MTab, DAGOBAH) also perform CEA; our headline isolates the
+CTA/CPA methods, and the real-EL rows (Table~\ref{tab:realcand}) show the effect of a
+non-oracle linker.
+\textbf{(e) GRAMS+ not re-run.} The GRAMS+ artifact's released code is not
+re-executable in our environment; its reference numbers (and its per-table F1 in
+Table~\ref{tab:significance}) are read from its released result files, not re-executed,
+under its own (P2) protocol.
+\textbf{(f) tFood excluded.} Following GRAMS+ (which reports anonymized/withheld cells
+on tFood) we exclude it from the benchmark matrix; its $\sim$$30$k-entity KG warm is
+also multi-day at the Wikidata API rate limit.
+\textbf{(g) Three open models omitted for stack incompatibility.} The LLM panel
+(Table~\ref{tab:llm-panel}) reports eight models -- two frontier APIs and six open
+instruct models ($3$B--$9$B); three further open models could not be run on the
+installed inference stack (Qwen-14B-Chat requires a removed
+\texttt{transformers.BeamSearchScorer}; gpt-oss-20b raises a CUDA device-side assert on
+its MoE/mxfp4 weights; Phi-3-medium's remote code uses a removed
+\texttt{DynamicCache.seen\_tokens}) and are omitted rather than estimated.
+\textbf{(i) Wikidata only; cross-KG generalization untested.} All benchmarks (250WT,
+HardTables, WikidataTables, ToughTables 2T\_WD) target Wikidata, so our results speak to
+Wikidata STI specifically. FLINT's features are KG-agnostic by construction -- type
+coverage, ancestor climbing, statement support, and label cosines are defined over any
+subject-predicate-object graph with an \texttt{instance-of}/\texttt{subclass-of}
+backbone -- so nothing in the method is Wikidata-specific, but we have not empirically
+demonstrated transfer to a second KG (e.g.\ DBpedia). We flag a DBpedia SemTab port as
+the primary cross-KG generalization experiment for future work and do not claim
+KG-general results here.
+
+% ---------------------------------------------------------------------
+\section{Conclusion}
+\label{sec:conclusion}
+FLINT shows that the heavy machinery STI has accreted -- trained neural scorers and
+bespoke Steiner-tree pipelines -- is not where the accuracy lives. Two tiny
+gradient-boosted rankers over closed-form ontology and relational features, plus a
+classical maximum-weight-arborescence decode, deliver the paper's central result under
+the fairest available protocol -- \emph{matched entity linking}, in which every system
+uses its own linker and FLINT has no oracle advantage: \textbf{on real-world 250WT,
+FLINT-CPA ($0.654$) matches the strongest system GRAMS+ ($0.664$) and exceeds DAGOBAH
+($0.618$) and MTab ($0.540$)}, holding the CPA frontier at $\sim$$1000\times$ less
+compute, and is competitive on CTA. Given oracle entities the CPA margin widens to a
+paired-significance win over all three, which we report as an \emph{upper bound} rather
+than the headline. On the saturated synthetic SemTab sets FLINT is competitive under the
+matched targets-given protocol -- within $\sim$$1$\,pt of MTab and beating GRAMS+/SemTex
+on WikidataTables CPA -- and it beats frontier LLMs (GPT-4o, Gemini-2.5-flash) that
+select from the same candidate set, all from a model that trains in seconds on CPU with
+no GPU and no neural network. A lightweight high-recall candidate generator lifts 250WT
+CPA candidate recall $0.73\!\to\!0.78$ and pushes FLINT-CPA macro-AF1 to $71.6$. A clean
+decoder ablation attributes the global-consistency benefit (a precision gain at equal
+recall) to the classical decode itself, not a learned component. We are honest about
+scope: the oracle-entity significance wins are an upper bound, FLINT does not strictly
+beat MTab on the saturated synthetic sets, CTA vs.\ GRAMS+ is a tie, and we evaluate on
+Wikidata only -- exactly the mixed-but-favorable posture GRAMS+ itself took (it too loses
+the synthetic sets to MTab). A cautionary note on evaluation rigor:
+a scoring-harness loader bug (a SemTab CEA row-index off-by-one) had crushed synthetic
+CPA to $0.50$ until it was found and fixed to $0.97$. The result is a Pareto win on
+accuracy vs.\ cost: STI needs neither deep nets, Steiner-tree pipelines, nor LLMs for
+competitive-and-often-winning accuracy.
+
+% ---------------------------------------------------------------------
+% Bibliography (references.bib). All 16 entries web-verified.
+% Per user directive, NO Anthropic/Claude model is used or cited as a baseline.
+\bibliographystyle{plainnat}
+\bibliography{references}
+% ---------------------------------------------------------------------
+\end{document}

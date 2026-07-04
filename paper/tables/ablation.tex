@@ -1,0 +1,23 @@
+% === Table: contribution ablations (250WT) =================================
+% PRELIMINARY: hashing features, 1 seed (5-seed + paired sign test for camera-ready;
+%   small deltas are within seed noise until then). CTA = cscore micro; CPA = exact micro-F1.
+% NUMBERS: experiments/ablation/{hgt,gt}_{on,off}.log (2026-06-11).
+\begin{table}[t]
+\centering
+\caption{Contribution ablations on 250WT (preliminary, 1 seed). The ontology
+hop-gate (contribution \#1) gives a small CTA gain. The Graph-Transformer backbone
+improves CTA but degrades CPA (global attention dilutes the targeted \texttt{kg\_triple}
+relational signal that message passing preserves), so message passing is the
+better-balanced backbone for the joint task. Multi-seed significance tests pending.}
+\label{tab:ablation}
+\begin{tabular}{llcc}
+\toprule
+Backbone & Hop-gate & CTA micro-F1 & CPA micro-F1 \\
+\midrule
+Message-passing & off & 0.712 & 0.575 \\
+Message-passing & \textbf{on}  & 0.727 & 0.565 \\
+Graph-Transformer & off & 0.733 & 0.510 \\
+Graph-Transformer & \textbf{on}  & \textbf{0.739} & 0.494 \\
+\bottomrule
+\end{tabular}
+\end{table}

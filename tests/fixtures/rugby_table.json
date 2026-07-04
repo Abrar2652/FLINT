@@ -1,0 +1,15 @@
+{
+  "table_id": "fig1_rugby",
+  "headers": ["Player", "Position", "Team", "Points"],
+  "rows": [
+    ["Dan Carter", "Fly-half", "New Zealand", "1598"],
+    ["Ronan O'Gara", "Fly-half", "Ireland", "1083"],
+    ["Percy Montgomery", "Fullback", "South Africa", "893"],
+    ["Chris Paterson", "Fullback", "Scotland", "809"]
+  ],
+  "entity_columns": [0, 2],
+  "expected_cta": {"0": "Q5", "2": "Q58840819"},
+  "expected_cpa": {"0,2": "P54", "0,3": "P1351", "0,1": "P413"},
+  "expected_ancestor_chain_player": ["Q5", "Q215627"],
+  "note": "Encodes Figure 1 of the GRAMS+ paper. Q5=human, Q58840819=national rugby union team, P54=member of sports team, P1351=number of points/goals, P413=position played on team. Used by Gate-2 graph-builder tests and Gate-3 shape tests."
+}

@@ -1,0 +1,38 @@
+% === Table: Conformal calibration for CTA (contribution #2) ================
+% PROTOCOL: CROSS-CONFORMAL over pooled OUT-OF-FOLD predictions (5-fold CV, all 250
+%   tables -> 666 CTA columns), 100 random calib/test splits, SBERT. Coverage on
+%   reachable examples; size = mean prediction-set cardinality. Target = 1-alpha.
+% NUMBERS: scripts/run_conformal_cv_single.py (2026-06-11). Supersedes the earlier
+%   single-fold gate4 numbers (which were noisy: a single test fold gave a spurious
+%   0.875 under-coverage AND a spurious softmax under-coverage — both artifacts).
+% HONEST STORY: on clean exchangeable data ALL methods reach target coverage
+%   (incl. softmax); conformal's win is EFFICIENCY (smaller sets at equal coverage)
+%   + the guarantee, which becomes decisive under shift (Table~\ref{tab:coverage-shift}).
+\begin{table}[t]
+\centering
+\caption{Conformal prediction sets for CTA (cross-conformal, 666 columns, 100
+splits). At equal (target) coverage, conformal (LAC / randomized APS) yields
+substantially smaller sets than the tuned softmax-threshold baseline -- up to
+$3.6\times$ at $\alpha{=}0.05$. Non-randomized APS over-covers and bloats;
+randomized APS restores efficiency. (Coverage parity on clean exchangeable data is
+expected; the conformal coverage \emph{guarantee} is what survives distribution
+shift, where softmax's coverage breaks -- see Table~\ref{tab:robustness}.)}
+\label{tab:conformal}
+\begin{tabular}{llcc}
+\toprule
+$\alpha$ & Method & Coverage & Set size \\
+\midrule
+\multirow{4}{*}{0.10}
+ & Softmax-threshold        & $0.903{\scriptstyle\pm0.024}$ & $6.44{\scriptstyle\pm1.67}$ \\
+ & \textbf{LAC (ours)}      & $0.906{\scriptstyle\pm0.025}$ & $\mathbf{3.81}{\scriptstyle\pm0.66}$ \\
+ & \textbf{APS-rand (ours)} & $0.907{\scriptstyle\pm0.025}$ & $4.54{\scriptstyle\pm0.85}$ \\
+ & APS (non-rand)           & $0.971{\scriptstyle\pm0.007}$ & $21.34{\scriptstyle\pm1.59}$ \\
+\midrule
+\multirow{4}{*}{0.05}
+ & Softmax-threshold        & $0.951{\scriptstyle\pm0.018}$ & $34.12{\scriptstyle\pm8.70}$ \\
+ & \textbf{LAC (ours)}      & $0.958{\scriptstyle\pm0.015}$ & $\mathbf{9.53}{\scriptstyle\pm2.42}$ \\
+ & \textbf{APS-rand (ours)} & $0.958{\scriptstyle\pm0.016}$ & $11.75{\scriptstyle\pm2.79}$ \\
+ & APS (non-rand)           & $0.971{\scriptstyle\pm0.007}$ & $21.40{\scriptstyle\pm1.68}$ \\
+\bottomrule
+\end{tabular}
+\end{table}

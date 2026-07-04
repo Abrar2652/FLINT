@@ -1,0 +1,27 @@
+# Default experiment config. Every run dumps its resolved version to its run dir.
+seed: 0
+dataset: 250wt          # 250wt | hardtables | wikidatatables | toughtables | tfood
+run_dir: experiments/runs/${dataset}_seed${seed}
+
+model:
+  hidden_dim: 256
+  num_layers: 3
+  backbone: hgt         # hgt | rgcn
+  num_heads: 4
+  dropout: 0.2
+  consistency_weight: 0.1
+  ontology_conditioned: true
+  joint: true
+
+ontology:
+  max_hops: 4           # generalizes GRAMS+ max_distance=2; model learns trust
+
+train:
+  lr: 1.0e-4            # matches GRAMS+ (Adam, 1e-4)
+  epochs: 50            # matches GRAMS+
+  batch_size: 16
+
+conformal:
+  alpha: 0.1            # coverage target 0.90
+  score: aps            # lac | aps | raps
+  use_gnn_correction: true

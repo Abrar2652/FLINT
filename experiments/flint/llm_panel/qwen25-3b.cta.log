@@ -1,0 +1,12 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:01<00:01,  1.23s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.06it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.02it/s]
+[CTA] 723 columns to classify
+The following generation flags are not valid and may be ignored: ['temperature', 'top_p', 'top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+  parse-failure fallback: 1/723 (0.1%)
+  [sample-out] 'Q47481352'
+  [sample-out] 'Q15978631'
+  [sample-out] 'Q131085629'
+============================================================
+250wt CTA | LLM (Qwen/Qwen2.5-3B-Instruct) constrained-choice | micro cscore
+  LLM-CTA micro-F1 = 0.567  macro = 0.558
+============================================================

@@ -1,0 +1,20 @@
+__pycache__/
+*.pyc
+.venv/
+data/raw/*
+data/cache/*
+data/processed/*
+experiments/logs/*
+experiments/checkpoints/*
+!**/.gitkeep
+.DS_Store
+
+# secrets & caches (added for public release)
+.env
+.env.*
+.pytest_cache/
+*.egg-info/
+ai_schematic_concepts/
+
+# archived legacy (OC-GNN / HeTa-Graph) - excluded from the FLINT release
+legacy/

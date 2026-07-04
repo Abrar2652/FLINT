@@ -1,0 +1,165 @@
+% =====================================================================
+% insights.tex -- living author's notebook: the STORY behind each table.
+% Deep insights / trends / failures that are NOT recoverable from the raw
+% numbers alone. Keep terse, mechanistic, method-specific. Updated as runs land.
+% (Prose blocks are paper-ready; %-comments are internal provenance.)
+% Last updated: 2026-06-05.
+% =====================================================================
+
+% ---------------------------------------------------------------------
+% Table~\ref{tab:cta-250wt} -- CTA accuracy on 250WT
+% ---------------------------------------------------------------------
+\paragraph{CTA: a strong baseline ceilings the task.}
+The headline of Table~\ref{tab:cta-250wt} is a near-tie that is itself
+informative: OC-GNN ($0.733$) only marginally exceeds majority vote ($0.722$),
+the small edge coming from relational signal (kg\_triple / literal-match edges)
+rather than better type scoring. The mechanism is that \emph{when entities are given}, a column's
+type is over-determined by the multiset of its cells' KG types, so unweighted
+majority voting is already near-optimal; a learned scorer has almost no residual
+signal to exploit. The true limiter is not the model but \emph{candidate-class
+reachability}: only $79.6\%$ of gold CTA classes are reachable from the entities'
+\texttt{P31} types and their ancestors (oracle $=0.886$), because gold classes are
+frequently \emph{finer} than \texttt{P31} (e.g.\ gold ``association football
+player'' vs.\ entity typed ``human''). The $\sim$6-point gap to GRAMS+ ($0.789$)
+is largely this reachability/snapshot effect, not modelling capacity.
+% INTERNAL: a pre-print-killing trap we already hit -- an empty-cache bug made CTA
+% read 0.28 (vs 0.79 SOTA); after fixing it the gap vanished to ~ceiling. NEVER
+% report pre-fix numbers. Lesson: always pin an oracle/ceiling AND a majority
+% baseline BEFORE interpreting a model number; here they reframed "we're broken"
+% into "the task is baseline-saturated under gold entities."
+
+% ---------------------------------------------------------------------
+% Table~\ref{tab:cpa-250wt} -- CPA accuracy on 250WT
+% ---------------------------------------------------------------------
+\paragraph{CPA: negative supervision is the hidden lever, then a representational ceiling.}
+Unlike CTA, CPA is genuinely relational and has no majority-vote shortcut, so it is
+where the GNN can win. Table~\ref{tab:cpa-250wt} carries two findings the F1
+alone hides. First, a \emph{training-target} effect that looks like a modelling
+problem but is not: supervising only the gold (positive) pairs leaves every
+spurious \texttt{kg\_triple} pair unlabelled, so the model never learns to emit
+NULL and precision craters. Adding NULL negatives lifts F1 $0.465\!\to\!0.579$
+(precision $0.72$) \emph{with no architecture change} --- a reminder that in
+open-candidate relational prediction the negatives carry most of the signal.
+Second --- and this is the corrected story after testing it --- the
+entity$\to$literal edge (statement-value$\leftrightarrow$cell-value match) we added
+to lift the $29\%$ entity$\to$literal cap helped only \emph{marginally}
+($0.579\!\to\!0.587$). The reason is diagnostic: the edge \emph{exposes} those
+pairs to the head, but only $45\%$ of entity$\to$literal gold is value-matchable
+(snapshot drift, units, missing statements), and the few that are carry little
+training signal. The binding constraint is therefore \emph{not} candidate
+coverage but \textbf{recall}: precision $0.73$ vs recall $0.49$, far below even the
+entity$\to$entity ceiling. The NULL-negative fix that rescued precision
+over-corrected into NULL-conservatism. The next lever is a precision/recall
+re-balance (down-weight NULL / tune the decision threshold), not more candidates
+--- a clean ablation and the remaining route toward GRAMS+ $0.664$.
+% INTERNAL: ablation rows to keep: kg_triple-only 0.465 -> +NULL-neg 0.579 ->
+% +literal 0.587. Lesson: closing a *representational* cap doesn't help if the head
+% won't spend recall there. Next run: NULL class-weight sweep (e.g. 0.3-0.7).
+
+% ---------------------------------------------------------------------
+% Table~\ref{tab:conformal} -- conformal calibration
+% ---------------------------------------------------------------------
+\paragraph{Conformal: efficiency is the clean-data win; APS is the wrong tool here.}
+The honest reading of Table~\ref{tab:conformal} (and a cautionary tale about
+single-split evaluation). On clean, exchangeable data \emph{every} method reaches
+target coverage --- including the tuned softmax threshold, which is itself a valid
+split-conformal procedure when calibrated on enough exchangeable data. So the
+clean-data contribution is NOT ``conformal covers and softmax doesn't''; it is
+\textbf{efficiency at equal coverage}: LAC and randomized APS give up to
+$3.6\times$ smaller prediction sets than softmax (LAC $9.5$ vs softmax $34.1$ at
+$\alpha{=}0.05$). Second, an empirical observation in our setting (consistent with
+known behaviour in hierarchical conformal classification, e.g.\ the LAC small-set /
+APS adaptive-but-larger trade-off): \emph{non-randomized} APS is a poor fit for the
+deep ontology-ancestor label space here --- its cumulative-mass sets balloon to
+$\sim$21 classes and over-cover; \emph{randomized} APS (Romano et al.) restores
+efficiency, and the simple LAC score ($1-p$) is the practical sweet spot. We do not
+claim this as a new conformal result --- only that practitioners on hierarchical KG
+label spaces should prefer LAC / randomized APS over vanilla APS. The role
+of the \emph{guarantee} under distribution shift is detailed in
+Table~\ref{tab:coverage-shift}: clean-calibrated coverage degrades for all wrappers
+(softmax worst), and shift-aware recalibration restores it --- the honest version
+of ``where contribution \#2 earns its keep'' (not ``conformal is immune to shift'').
+% INTERNAL (rigor note, do NOT delete): an earlier SINGLE-FOLD eval showed a
+% spurious 0.875 under-coverage AND a spurious "softmax under-covers" — both were
+% small-calibration-set / single-split artifacts. Cross-conformal (666 cols, 100
+% splits) corrected them. Lesson baked into the paper: report cross-conformal, not
+% one split. The coverage-under-shift experiment is what carries the guarantee claim.
+% INTERNAL: coverage is reported on REACHABLE examples; marginal coverage is hard-
+% capped by reachability (~0.94 this split) so the ~0.8 reachability is a separate
+% candidate-gen limitation, not a calibration failure. Randomized APS would shrink
+% APS sets and is the obvious next ablation.
+
+% ---------------------------------------------------------------------
+% Table~\ref{tab:robustness} -- robustness to linking noise
+% ---------------------------------------------------------------------
+\paragraph{Robustness: majority vote is a tougher baseline than intuition says.}
+The surprising, counter-thesis trend in Table~\ref{tab:robustness}: under
+entity-linking noise the clean-trained OC-GNN \emph{collapses} ($0.69\!\to\!0.35$
+at $20\%$ noise) while majority vote is nearly flat ($0.68\!\to\!0.68$). The
+reason is structural, not incidental: majority vote is by construction robust to a
+\emph{minority} of corrupted cells (it averages them out), whereas a model trained
+only on clean candidates is out-of-distribution the moment distractors appear.
+This kills the naive ``structure degrades gracefully'' claim and redirects the
+robustness contribution to \emph{noise-augmented training} (and to relational CPA
+signal, where majority-vote-on-types does not apply). An observer seeing only
+``$0.35$ vs $0.68$'' would read it as a broken model; the real content is that the
+baseline's robustness is algorithmic and must be \emph{earned}, not assumed.
+% INTERNAL: vanilla conformal coverage stayed ~0.97 under noise ONLY because APS
+% sets are huge -> trivial coverage, NOT a robustness win. Do not headline it.
+% Next: train_with_noise ablation + shift-aware (Mondrian/weighted) conformal.
+
+% ---------------------------------------------------------------------
+% Table~\ref{tab:toughtables} -- ToughTables robustness frontier
+% ---------------------------------------------------------------------
+\paragraph{ToughTables: the famous collapse is partly a retrieval artifact.}
+The headline non-obvious finding (Table~\ref{tab:toughtables}): under the
+\emph{official} AH scoring, a plain counting baseline driven by \emph{modern}
+candidate retrieval scores $0.557$, already above the published SOTA that made
+ToughTables famous for breaking systems (DAGOBAH $0.409$). The benchmark's
+difficulty was therefore substantially an artifact of 2020-era entity linking and
+a sparser Wikidata, not an intrinsic ceiling on column typing. Two consequences:
+(i) any robustness claim must beat this \emph{stronger} modern baseline, not the
+stale published number -- otherwise the ``win'' is just better retrieval; (ii) it
+re-frames the robustness contribution toward the residual hardness counting still
+cannot solve (ambiguous/heterogeneous columns where majority vote over noisy
+candidates fails), which is where collective Graph-Transformer attention is
+hypothesised to help. The model-vs-baseline row is pending under identical scoring.
+% INTERNAL: this is the first "beats published SOTA" number that survives the
+% official scorer -- but it's the BASELINE, not our model. Honest framing only.
+% 20 rows/table, wbsearchentities k=20, 490/540 cols predicted (50 had no candidate
+% -> AH penalised); more rows/better retrieval likely raises it further.
+
+% ---------------------------------------------------------------------
+% Table~\ref{tab:coverage-shift} -- conformal coverage under shift
+% ---------------------------------------------------------------------
+\paragraph{Coverage under shift: where the guarantee actually pays off.}
+Table~\ref{tab:coverage-shift} is the experiment that justifies calling conformal
+a guarantee rather than a heuristic. On clean data all wrappers cover; as entity-
+linking noise rises, clean-calibrated coverage falls below target -- the softmax
+threshold collapses hardest ($0.90\!\to\!0.73$), vanilla conformal degrades but
+less ($\to\!0.79$), because the model's probabilities drift and a frozen threshold
+cannot adapt. Recalibrating at the test intensity (shift-aware) restores coverage
+toward target ($0.87$-$0.89$ at the highest noise). The honest takeaway is not
+``conformal is immune to shift'' (it is not -- exchangeability genuinely breaks),
+but ``the guarantee is recoverable by recalibration, and even un-recalibrated
+conformal is more shift-robust than a tuned threshold.'' This is the contribution-2
+claim stated at exactly the strength the evidence supports.
+% INTERNAL: single seed/fold, preliminary; multi-seed curves for camera-ready.
+% shift-aware OVER-covers at low noise (0.96-0.98) -> sets grow; report the size cost too.
+
+% ---------------------------------------------------------------------
+% Cross-cutting narrative (the paper's honest spine)
+% ---------------------------------------------------------------------
+\paragraph{Where the method actually wins.} Synthesising the tables: CTA accuracy
+and CTA robustness are both \emph{baseline-saturated} under gold entities (a
+parameter-free majority vote ties OC-GNN and resists noise), so CTA is positioned
+as \emph{competitive}, not a headline. The two defensible contributions are
+(i) \textbf{CPA} (Table~\ref{tab:cpa-250wt}): relational, no majority-vote
+analogue; the NULL-negative fix took it $0.465\!\to\!0.579$ at precision $0.72$,
+and the entity$\to$literal edge is a concrete path toward GRAMS+ $0.664$; and
+(ii) the first \textbf{coverage-guaranteed} CTA/CPA via conformal abstention
+(Table~\ref{tab:conformal}), including the method-specific finding that LAC$>$APS
+for deep label hierarchies. Net story: \emph{a joint ontology-conditioned GNN that
+improves relational (CPA) prediction and makes STI trustworthy via calibrated
+abstention} --- not ``a GNN that beats SOTA CTA accuracy,'' which the evidence does
+not support.

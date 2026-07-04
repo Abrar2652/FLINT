@@ -1,0 +1,26 @@
+% === Table: ToughTables CTA (robustness frontier) =========================
+% SCORING: OFFICIAL SemTab AH/AP using the provided gt_ancestor/gt_descendent files
+%   (perfect=1.0, ancestor=0.8^d d<=5, descendant=0.7^d d<=3). Comparable to
+%   published SOTA. Our rows sampled (20/table; CTA is per-column), candidates from
+%   wbsearchentities (k=20). NUMBERS: scripts/eval/toughtables_score.py (2026-06-09).
+% NOTE: the counting row is OUR baseline with MODERN retrieval; the SOTA rows are
+%   published (2020-2022 era). OC-GNN/GT row pending.
+\begin{table}[t]
+\centering
+\caption{ToughTables CTA under the official AH/AP scoring. A simple counting
+baseline with \emph{modern} candidate retrieval already exceeds published SOTA,
+indicating the benchmark's reported brittleness is substantially a
+retrieval-era artifact; this stronger baseline is the bar our method must beat.}
+\label{tab:toughtables}
+\begin{tabular}{lccc}
+\toprule
+Method & AH & AP & F1 \\
+\midrule
+DAGOBAH (SemTab'22, published) & 0.409 & -- & -- \\
+KGCODE-Tab (SemTab'22, published) & 0.543 & -- & -- \\
+\midrule
+Counting + modern retrieval (ours) & \textbf{0.557} & 0.614 & 0.584 \\
+OC-GNN / Graph-Transformer (ours) & \multicolumn{3}{c}{\emph{pending}} \\
+\bottomrule
+\end{tabular}
+\end{table}

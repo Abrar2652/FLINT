@@ -1,0 +1,11 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:13<00:40, 13.46s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:26<00:26, 13.00s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:37<00:12, 12.46s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:47<00:00, 11.13s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:47<00:00, 11.76s/it]
+[CTA] 723 columns to classify
+  parse-failure fallback: 18/723 (2.5%)
+  [sample-out] 'Q47481352 \n'
+  [sample-out] 'Q215627 \n'
+  [sample-out] 'Q7278 \n'
+============================================================
+250wt CTA | LLM (google/gemma-2-9b-it) constrained-choice | micro cscore
+  LLM-CTA micro-F1 = 0.679  macro = 0.673
+============================================================

@@ -1,0 +1,10 @@
+done qwen-14b
+done gptoss-20b
+done llama31-8b
+done qwen25-7b
+done ministral-8b
+done phi3-medium
+done gemma2-9b
+done qwen25-3b
+done mistral-7b
+ALLDONE

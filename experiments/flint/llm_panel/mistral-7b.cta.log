@@ -1,0 +1,11 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards:   0%|          | 0/3 [00:00<?, ?it/s]Loading checkpoint shards:  33%|███▎      | 1/3 [00:08<00:17,  8.67s/it]Loading checkpoint shards:  67%|██████▋   | 2/3 [00:22<00:11, 11.89s/it]Loading checkpoint shards: 100%|██████████| 3/3 [00:34<00:00, 11.74s/it]Loading checkpoint shards: 100%|██████████| 3/3 [00:34<00:00, 11.46s/it]
+[CTA] 723 columns to classify
+  parse-failure fallback: 22/723 (3.0%)
+  [sample-out] 'Q47481352: Lok Sabha constituency'
+  [sample-out] 'Q154954: natural person\nQ72638: individual (this is a more general type that includes both humans and non-human individuals)\n\nHowever, since the column header explicitly states "Name'
+  [sample-out] 'Q131085629: collective agent\nQ7278: political party (This is the best answer as it specifically describes a column containing party affiliations.)'
+============================================================
+250wt CTA | LLM (mistralai/Mistral-7B-Instruct-v0.2) constrained-choice | micro cscore
+  LLM-CTA micro-F1 = 0.598  macro = 0.593
+============================================================

@@ -1,0 +1,35 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+`flash-attention` package not found, consider installing for better performance: No module named 'flash_attn'.
+Current `flash-attenton` does not support `window_size`. Either upgrade or use `attn_implementation='eager'`.
+Loading checkpoint shards:   0%|          | 0/6 [00:00<?, ?it/s]Loading checkpoint shards:  17%|█▋        | 1/6 [00:12<01:04, 12.81s/it]Loading checkpoint shards:  33%|███▎      | 2/6 [00:24<00:49, 12.43s/it]Loading checkpoint shards:  50%|█████     | 3/6 [00:32<00:30, 10.07s/it]Loading checkpoint shards:  67%|██████▋   | 4/6 [00:39<00:18,  9.13s/it]Loading checkpoint shards:  83%|████████▎ | 5/6 [00:46<00:08,  8.36s/it]Loading checkpoint shards: 100%|██████████| 6/6 [00:53<00:00,  7.70s/it]Loading checkpoint shards: 100%|██████████| 6/6 [00:53<00:00,  8.89s/it]
+[CTA] 723 columns to classify
+Traceback (most recent call last):
+  File "/nas/ckgfs/jaunts/jahin/flint/scripts/llm_baseline.py", line 256, in <module>
+    main()
+  File "/nas/ckgfs/jaunts/jahin/flint/scripts/llm_baseline.py", line 252, in main
+    (run_cta if args.task == "cta" else run_cpa)(args, kg, gen_fn, label)
+  File "/nas/ckgfs/jaunts/jahin/flint/scripts/llm_baseline.py", line 162, in run_cta
+    outs = gen_fn(prompts)
+           ^^^^^^^^^^^^^^^
+  File "/nas/ckgfs/jaunts/jahin/flint/scripts/llm_baseline.py", line 247, in <lambda>
+    gen_fn = lambda ps: chat_batch(tok, model, ps)  # noqa: E731
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/nas/home/jahin/.local/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 116, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/nas/ckgfs/jaunts/jahin/flint/scripts/llm_baseline.py", line 122, in chat_batch
+    gen = model.generate(**enc, max_new_tokens=max_new, do_sample=False,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/nas/home/jahin/.local/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 116, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/nas/home/jahin/.local/lib/python3.12/site-packages/transformers/generation/utils.py", line 2566, in generate
+    result = decoding_method(
+             ^^^^^^^^^^^^^^^^
+  File "/nas/home/jahin/.local/lib/python3.12/site-packages/transformers/generation/utils.py", line 2783, in _sample
+    model_inputs = self.prepare_inputs_for_generation(input_ids, **model_kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/nas/ckgfs/jaunts/jahin/hf_cache/modules/transformers_modules/microsoft/Phi_hyphen_3_hyphen_medium_hyphen_4k_hyphen_instruct/48d87cd5e0523b430d77e93becd3655cd6897230/modeling_phi3.py", line 1334, in prepare_inputs_for_generation
+    past_length = past_key_values.seen_tokens
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'DynamicCache' object has no attribute 'seen_tokens'
