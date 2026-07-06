@@ -8,7 +8,7 @@ echo "  250WT:            clone github.com/usc-isi-i2/GRAMS (tag iswc-2021), cop
 echo "  HardTables R1 22: https://zenodo.org/records/7416036"
 echo "  WikidataTbls 23:  https://zenodo.org/records/8393535"
 echo "  ToughTables/2T:   https://zenodo.org/records/4246370"
-echo "  tFood:            SemTab 2023 distribution"
+echo "  tFood:            https://zenodo.org/records/10048187"
 echo
 echo "[Gate 0 ACTION] Verify https://purl.org/gramsplus resolves to USABLE code/models."
 echo "  -> record the result in docs/GATE_STATUS.md (decides baseline strategy, CLAUDE.md s4)."

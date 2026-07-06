@@ -1,0 +1,2 @@
+/nas/ckgfs/jaunts/jahin/flint/src/flint/graph/features.py:67: FutureWarning: The `get_sentence_embedding_dimension` method has been renamed to `get_embedding_dimension`.
+  self.dim = self._model.get_sentence_embedding_dimension()

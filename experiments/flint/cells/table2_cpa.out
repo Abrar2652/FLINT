@@ -1,0 +1,13 @@
+##### 250wt #####
+  [TABLE-2 targets-given] FLINT CPA: micro-F1 = 0.747 +/- 0.006 | macro-F1 = 0.785
+     (predict argmax property for GOLD pairs; no pair-detection FP/FN)
+==================================================================
+##### hardtables #####
+  [TABLE-2 targets-given] FLINT CPA: micro-F1 = 0.973 +/- 0.000 | macro-F1 = 0.973
+     (predict argmax property for GOLD pairs; no pair-detection FP/FN)
+==================================================================
+##### wikidatatables #####
+  [TABLE-2 targets-given] FLINT CPA: micro-F1 = 0.980 +/- 0.000 | macro-F1 = 0.976
+     (predict argmax property for GOLD pairs; no pair-detection FP/FN)
+==================================================================
+ALLDONE

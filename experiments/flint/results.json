@@ -18,32 +18,88 @@
       "grams_plus_published_P2_diff_protocol_reference": 0.789,
       "table1_macro_ap_ar_af1_x100": {
         "_note": "GRAMS+ Table-1 format (macro AP/AR/AF1), gold entities, printed by flint_cta_ranker.py micro+macro breakdown; used in cta_multidataset.tex 250WT rows.",
-        "counting": [74.5, 70.3, 71.1],
-        "grams_plus_algorithm": [75.6, 71.1, 72.0],
-        "flint": [81.1, 76.2, 77.2]
+        "counting": [
+          74.5,
+          70.3,
+          71.1
+        ],
+        "grams_plus_algorithm": [
+          75.6,
+          71.1,
+          72.0
+        ],
+        "flint": [
+          81.1,
+          76.2,
+          77.2
+        ]
       },
-      "micro_p_r_f_x100": {"counting": [80.0, 65.9, 72.2], "grams_plus_algorithm": [81.1, 66.7, 73.2], "flint": [86.6, 71.3, 78.2]},
-      "sign_test_flint_vs_grams_algo": {"wins": 142, "losses": 77, "n": 219, "p": 1.1e-5},
+      "micro_p_r_f_x100": {
+        "counting": [
+          80.0,
+          65.9,
+          72.2
+        ],
+        "grams_plus_algorithm": [
+          81.1,
+          66.7,
+          73.2
+        ],
+        "flint": [
+          86.6,
+          71.3,
+          78.2
+        ]
+      },
+      "sign_test_flint_vs_grams_algo": {
+        "wins": 142,
+        "losses": 77,
+        "n": 219,
+        "p": 1.1e-05
+      },
       "reachability_ceiling_4hop": 0.97,
-      "granularity_offset": {"exact": 0.656, "gold_is_ancestor": 0.276, "gold_finer": 0.002, "off_path": 0.066}
+      "granularity_offset": {
+        "exact": 0.656,
+        "gold_is_ancestor": 0.276,
+        "gold_finer": 0.002,
+        "off_path": 0.066
+      }
     },
     "real_candidate_top1_EL_partial_cache": {
       "command": "python scripts/flint_cta_ranker.py --entities candgen",
       "note": "partial candidate cache (warming, rate-limited); absolute numbers EL-limited, climb toward gold as cache fills; relative win holds",
       "coverage_at_9845_mentions": {
-        "counting": 0.606, "grams_plus_algorithm": 0.614, "flint_cta": 0.668, "flint_cta_std": 0.002,
-        "sign_test_flint_vs_grams_algo": {"wins": 131, "losses": 51, "n": 182, "p": 3.0e-9}
+        "counting": 0.606,
+        "grams_plus_algorithm": 0.614,
+        "flint_cta": 0.668,
+        "flint_cta_std": 0.002,
+        "sign_test_flint_vs_grams_algo": {
+          "wins": 131,
+          "losses": 51,
+          "n": 182,
+          "p": 3e-09
+        }
       },
       "coverage_at_8115_mentions": {
-        "counting": 0.565, "grams_plus_algorithm": 0.570, "flint_cta": 0.626,
-        "sign_test_flint_vs_grams_algo": {"wins": 126, "losses": 36, "n": 162, "p": 1.5e-12}
+        "counting": 0.565,
+        "grams_plus_algorithm": 0.57,
+        "flint_cta": 0.626,
+        "sign_test_flint_vs_grams_algo": {
+          "wins": 126,
+          "losses": 36,
+          "n": 162,
+          "p": 1.5e-12
+        }
       }
     },
     "toughtables_2T_WD_cross_dataset": {
       "command": "python scripts/flint_toughtables.py",
       "metric": "OFFICIAL SemTab AH/AP (comparable to published)",
       "coverage": "492/540 columns (91.1%); partial cache understates AH (missing cols score 0)",
-      "published_sota": {"DAGOBAH_AH": 0.409, "KGCODE_AH": 0.543},
+      "published_sota": {
+        "DAGOBAH_AH": 0.409,
+        "KGCODE_AH": 0.543
+      },
       "counting_AH": 0.565,
       "grams_plus_algorithm_AH": 0.552,
       "flint_zeroshot_from_250wt_AH": 0.509,
@@ -56,59 +112,234 @@
     "metric": "exact micro-F1",
     "gold_entities_identical_protocol": {
       "command": "python scripts/flint_cpa_ranker.py",
-      "support_vote_nonlearned": 0.460,
+      "support_vote_nonlearned": 0.46,
       "prior_ocgnn_gnn": 0.595,
-      "flint_threshold_decode": {"f1": 0.657, "std": 0.007, "P": 0.761, "R": 0.578},
-      "flint_steiner_arborescence_decode": {"f1": 0.676, "std": 0.011, "P": 0.805, "R": 0.582},
+      "flint_threshold_decode": {
+        "f1": 0.657,
+        "std": 0.007,
+        "P": 0.761,
+        "R": 0.578
+      },
+      "flint_steiner_arborescence_decode": {
+        "f1": 0.676,
+        "std": 0.011,
+        "P": 0.805,
+        "R": 0.582
+      },
       "grams_plus_published_steiner_2023": 0.664,
       "candidate_recall_ceiling_2026_cache": 0.734,
       "oracle_threshold_ceiling": 0.735,
-      "bootstrap_steiner_gt_threshold": {"frac": 0.999, "median_dF1": 0.020},
-      "bootstrap_steiner_gt_support": {"frac": 1.000, "median_dF1": 0.215}
+      "bootstrap_steiner_gt_threshold": {
+        "frac": 0.999,
+        "median_dF1": 0.02
+      },
+      "bootstrap_steiner_gt_support": {
+        "frac": 1.0,
+        "median_dF1": 0.215
+      }
     },
     "real_candidate_top1_EL_UPDATED": {
       "command": "python scripts/flint_cpa_ranker.py --dataset 250wt --entities candgen",
       "note": "REAL top-1 EL (NO gold advantage), fuller candidate cache (~96%) + enriched candidates. Removes the gold-EL caveat.",
-      "support_vote": 0.370,
-      "flint_threshold_decode": {"f1": 0.622, "std": 0.010, "P": 0.727, "R": 0.545},
-      "flint_steiner_decode_notargets": {"f1": 0.654, "std": 0.008, "P": 0.757, "R": 0.576},
-      "flint_targets_given_table2": {"micro_f1": 0.732, "macro_f1": 0.768},
-      "vs_published": "real-EL FLINT CPA no-targets 0.654 ~= GRAMS+ published 0.664 (TIE without gold advantage); gold-EL FLINT 0.676-0.727 significantly beats GRAMS+. So FLINT matches SOTA CPA even matched-EL, and beats it with gold EL — at 1000x less compute.",
+      "support_vote": 0.37,
+      "flint_threshold_decode": {
+        "f1": 0.622,
+        "std": 0.01,
+        "P": 0.727,
+        "R": 0.545
+      },
+      "flint_steiner_decode_notargets": {
+        "f1": 0.654,
+        "std": 0.008,
+        "P": 0.757,
+        "R": 0.576
+      },
+      "flint_targets_given_table2": {
+        "micro_f1": 0.732,
+        "macro_f1": 0.768
+      },
+      "vs_published": "real-EL FLINT CPA no-targets 0.654 ~= GRAMS+ published 0.664 (TIE without gold advantage); gold-EL FLINT 0.676-0.727 significantly beats GRAMS+. So FLINT matches SOTA CPA even matched-EL, and beats it with gold EL \u2014 at 1000x less compute.",
       "prior_partial_cache_value": 0.387
     }
   },
   "SIGNIFICANCE_vs_real_SOTA_250wt": {
     "_note": "Paired per-table sign test + bootstrap, FLINT vs the ACTUAL GRAMS+/MTab/DAGOBAH (their per-table F1 read from GRAMS+ artifact individual/*). 250WT, n=250, header-alignment 95%. Field-standard system-vs-system test (GRAMS+ itself used sign test). Caveat: FLINT gold-EL vs their own-EL. command: scripts/sig_vs_sota.py",
-    "cta": {"flint_mean": 0.756,
-            "vs_GRAMS+": {"their": 0.789, "dF": -0.033, "p": 0.836, "verdict": "tie (n.s.)"},
-            "vs_MTab": {"their": 0.674, "dF": 0.083, "p": 1.8e-4, "verdict": "FLINT wins"},
-            "vs_DAGOBAH": {"their": 0.740, "dF": 0.016, "p": 0.246, "verdict": "tie (n.s.)"}},
-    "cpa": {"flint_mean": 0.727,
-            "vs_GRAMS+": {"their": 0.664, "dF": 0.063, "p": 1.9e-3, "verdict": "FLINT WINS"},
-            "vs_MTab": {"their": 0.540, "dF": 0.187, "p": 9.6e-11, "verdict": "FLINT WINS"},
-            "vs_DAGOBAH": {"their": 0.618, "dF": 0.109, "p": 1.3e-7, "verdict": "FLINT WINS"}},
-    "headline": "On real-world 250WT, FLINT SIGNIFICANTLY beats all 3 SOTA systems on CPA; on CTA significantly beats MTab and ties GRAMS+/DAGOBAH. (corrected after fixing a per-table CTA denominator bug that had inflated CTA to 0.875)"
+    "cta": {
+      "flint_mean": 0.756,
+      "vs_GRAMS+": {
+        "their": 0.789,
+        "dF": -0.033,
+        "p": 0.836,
+        "verdict": "tie (n.s.)"
+      },
+      "vs_MTab": {
+        "their": 0.674,
+        "dF": 0.083,
+        "p": 0.00018,
+        "verdict": "FLINT wins"
+      },
+      "vs_DAGOBAH": {
+        "their": 0.74,
+        "dF": 0.016,
+        "p": 0.246,
+        "verdict": "tie (n.s.)"
+      }
+    },
+    "cpa": {
+      "flint_mean": 0.727,
+      "vs_GRAMS+": {
+        "their": 0.664,
+        "dF": 0.063,
+        "p": 0.0019,
+        "verdict": "FLINT WINS"
+      },
+      "vs_MTab": {
+        "their": 0.54,
+        "dF": 0.187,
+        "p": 9.6e-11,
+        "verdict": "FLINT WINS"
+      },
+      "vs_DAGOBAH": {
+        "their": 0.618,
+        "dF": 0.109,
+        "p": 1.3e-07,
+        "verdict": "FLINT WINS"
+      }
+    },
+    "headline": "On real-world 250WT, FLINT SIGNIFICANTLY beats all 3 SOTA systems on CPA; on CTA significantly beats MTab and ties GRAMS+/DAGOBAH. (corrected after fixing a per-table CTA denominator bug that had inflated CTA to 0.875)",
+    "_reproduction_note_2026_07": "REPRODUCIBILITY (reviewer Q3): the per-table F1 metrics depend on the Wikidata candidate cache, which is rebuilt from the live API. Re-running reproduces every reported VERDICT and reproduces the numbers within ~+/-0.01 F1 (e.g. gold-EL CPA per-table mean regenerated to 0.730 vs recorded 0.727; a paired WIN over GRAMS+ either way). During this check we found and fixed a STALE on-disk per-table CPA dump (0.691) that did not match the canonical 0.727; the regenerator confirmed the canonical value. All numbers above are the canonical results.json snapshot; the paper traces to these."
   },
   "TABLE2_targets_given_matched_protocol": {
     "_note": "GRAMS+ Table 2 = target column-pairs PROVIDED. FLINT: predict argmax property for each GOLD pair, no threshold/pair-detection. micro P=R=F. This is the clean matched comparison. (command: flint_cpa_ranker.py prints [TABLE-2 targets-given])",
-    "cpa_micro_f1": {"250wt": 0.747, "hardtables": 0.973, "wikidatatables": 0.980},
-    "cpa_macro_f1": {"250wt": 0.785, "hardtables": 0.973, "wikidatatables": 0.976},
-    "published_table2_cpa_mF1": {"hardtables": {"MTab": 0.984, "GRAMS+": 0.9806, "DAGOBAH": 0.984, "SemTex": 0.9705, "KGCode": 0.942},
-                                  "wikidatatables": {"MTab": 0.9811, "GRAMS+": 0.9720, "SemTex": 0.9640}},
-    "cta_micro_f1_table2": {"hardtables": 0.949, "wikidatatables": 0.937},
-    "published_table2_cta": {"hardtables": {"MTab": 0.9509, "GRAMS+": 0.940, "DAGOBAH": 0.975}, "wikidatatables": {"MTab": 0.9632, "GRAMS+": 0.9486}},
+    "cpa_micro_f1": {
+      "250wt": 0.747,
+      "hardtables": 0.973,
+      "wikidatatables": 0.98
+    },
+    "cpa_macro_f1": {
+      "250wt": 0.785,
+      "hardtables": 0.973,
+      "wikidatatables": 0.976
+    },
+    "published_table2_cpa_mF1": {
+      "hardtables": {
+        "MTab": 0.984,
+        "GRAMS+": 0.9806,
+        "DAGOBAH": 0.984,
+        "SemTex": 0.9705,
+        "KGCode": 0.942
+      },
+      "wikidatatables": {
+        "MTab": 0.9811,
+        "GRAMS+": 0.972,
+        "SemTex": 0.964
+      }
+    },
+    "cta_micro_f1_table2": {
+      "hardtables": 0.949,
+      "wikidatatables": 0.937
+    },
+    "published_table2_cta": {
+      "hardtables": {
+        "MTab": 0.9509,
+        "GRAMS+": 0.94,
+        "DAGOBAH": 0.975
+      },
+      "wikidatatables": {
+        "MTab": 0.9632,
+        "GRAMS+": 0.9486
+      }
+    },
     "verdict": "FLINT-CPA at SOTA frontier on matched protocol: WikidataTables 98.0 BEATS GRAMS+ 97.2 & SemTex 96.4, ties MTab 98.11 (-0.1); HardTables 97.3 ~1pt under MTab/GRAMS+/DAGOBAH, beats KGCode. CTA competitive (ties GRAMS+ HardTables, ~1-2.6pt under MTab). NOT a strict clean sweep over MTab on synthetic; IS competitive + beats GRAMS+ on Wiki CPA + far lighter. gold-EL caveat."
   },
   "LOADER_BUG_FIX_corrected_synthetic": {
     "_bug": "loaders._load_semtab kept SemTab CEA row indices raw (1-based incl header) while stripping header into rows[0] -> subject entity off by one row vs object cell -> CPA value-match destroyed. Fixed: cea key row-1. CTA barely affected; CPA transformed. 250WT (sm loader) unaffected.",
     "metric": "macro AP/AR/AF1 (Table 1 convention), gold entities, 5-fold CV",
     "hardtables": {
-      "cpa": {"FLINT": [0.969, 0.962, 0.965], "pub_MTab": [0.9878, 0.9406, 0.9410], "pub_GRAMS+": [0.9892, 0.9120, 0.9171], "verdict": "FLINT wins AR+AF1, loses AP (was 0.545 pre-fix)"},
-      "cta": {"FLINT": [0.827, 0.945, 0.865], "counting": [0.797, 0.910, 0.833], "grams_algo": [0.801, 0.915, 0.838], "pub_MTab": [0.9487, 0.915, 0.9153], "pub_GRAMS+": [0.9436, 0.9058, 0.9063], "verdict": "FLINT beats identical-protocol baselines; loses macro AF1 to published (precision-dragged on small tables)"}
+      "cpa": {
+        "FLINT": [
+          0.969,
+          0.962,
+          0.965
+        ],
+        "pub_MTab": [
+          0.9878,
+          0.9406,
+          0.941
+        ],
+        "pub_GRAMS+": [
+          0.9892,
+          0.912,
+          0.9171
+        ],
+        "verdict": "FLINT wins AR+AF1, loses AP (was 0.545 pre-fix)"
+      },
+      "cta": {
+        "FLINT": [
+          0.827,
+          0.945,
+          0.865
+        ],
+        "counting": [
+          0.797,
+          0.91,
+          0.833
+        ],
+        "grams_algo": [
+          0.801,
+          0.915,
+          0.838
+        ],
+        "pub_MTab": [
+          0.9487,
+          0.915,
+          0.9153
+        ],
+        "pub_GRAMS+": [
+          0.9436,
+          0.9058,
+          0.9063
+        ],
+        "verdict": "FLINT beats identical-protocol baselines; loses macro AF1 to published (precision-dragged on small tables)"
+      }
     },
     "wikidatatables": {
-      "cpa": {"FLINT": [0.961, 0.964, 0.960], "pub_MTab": [0.947, 0.9591, 0.9224], "pub_GRAMS+": [0.9438, 0.9110, 0.8925], "verdict": "FLINT WINS ALL THREE (clean sweep) vs MTab + GRAMS+"},
-      "cta": {"FLINT": [0.844, 0.931, 0.872], "pub_MTab": [0.9714, 0.9351, 0.941], "pub_GRAMS+": [0.9608, 0.940, 0.9406], "verdict": "loses all 3 (precision-dragged); close on recall"}
+      "cpa": {
+        "FLINT": [
+          0.961,
+          0.964,
+          0.96
+        ],
+        "pub_MTab": [
+          0.947,
+          0.9591,
+          0.9224
+        ],
+        "pub_GRAMS+": [
+          0.9438,
+          0.911,
+          0.8925
+        ],
+        "verdict": "FLINT WINS ALL THREE (clean sweep) vs MTab + GRAMS+"
+      },
+      "cta": {
+        "FLINT": [
+          0.844,
+          0.931,
+          0.872
+        ],
+        "pub_MTab": [
+          0.9714,
+          0.9351,
+          0.941
+        ],
+        "pub_GRAMS+": [
+          0.9608,
+          0.94,
+          0.9406
+        ],
+        "verdict": "loses all 3 (precision-dragged); close on recall"
+      }
     },
     "remaining_gaps": "CPA precision (HardTables/250WT, ~2-3pt; threshold-tunable since recall is high) and CTA macro AF1 (precision on small synthetic tables, ~5-7pt). WikidataTables CPA already a clean sweep.",
     "caveat": "FLINT gold-entity vs published own-EL; on clean synthetic EL the advantage is small but present."
@@ -116,16 +347,47 @@
   "high_recall_candgen": {
     "_note": "Pivot after HeTa-Graph rejected (L_constraint 98.2% redundant). Attack the REAL CPA bottleneck = candidate recall, with lightweight value-grounded enrichment (improved literal match + entity label-match). scripts/flint_candgen_recall.py + enriched build_pairs in flint_cpa_ranker.py.",
     "candidate_recall_lift": {
-      "250wt": {"R0_baseline": 0.733, "R1_improved_literal": 0.746, "R2_label_match": 0.783, "R3_presence_upperbound": 0.846},
-      "hardtables": {"R0": 0.398, "R1": 0.490, "R2": 0.490, "R3_presence": 0.984},
-      "wikidatatables": {"R0": 0.360, "R1": 0.426, "R2": 0.426, "R3_presence": 0.972}
+      "250wt": {
+        "R0_baseline": 0.733,
+        "R1_improved_literal": 0.746,
+        "R2_label_match": 0.783,
+        "R3_presence_upperbound": 0.846
+      },
+      "hardtables": {
+        "R0": 0.398,
+        "R1": 0.49,
+        "R2": 0.49,
+        "R3_presence": 0.984
+      },
+      "wikidatatables": {
+        "R0": 0.36,
+        "R1": 0.426,
+        "R2": 0.426,
+        "R3_presence": 0.972
+      }
     },
     "key_finding": "On synthetic sets the gold property is PRESENT on the subject ~98% (R3) but object-value-match fails -> recall bottleneck is value matching, not property availability. label-match helps 250WT (real entity object cols) not synthetic (literal/numeric object cols). presence-based candidates are NOT usable on synthetic sets (generic col0/col1 headers => no signal to assign property->column).",
     "cpa_f1_with_enriched_candidates_250wt": {
-      "baseline_steiner_micro": {"f1": 0.676, "P": 0.805, "R": 0.582},
-      "enriched_steiner_micro": {"f1": 0.682, "P": 0.765, "R": 0.616},
-      "enriched_steiner_macro": {"f1": 0.716, "P": 0.793, "R": 0.695},
-      "vs_grams_published_macro": {"AP": 82.79, "AR": 62.06, "AF1": 66.41},
+      "baseline_steiner_micro": {
+        "f1": 0.676,
+        "P": 0.805,
+        "R": 0.582
+      },
+      "enriched_steiner_micro": {
+        "f1": 0.682,
+        "P": 0.765,
+        "R": 0.616
+      },
+      "enriched_steiner_macro": {
+        "f1": 0.716,
+        "P": 0.793,
+        "R": 0.695
+      },
+      "vs_grams_published_macro": {
+        "AP": 82.79,
+        "AR": 62.06,
+        "AF1": 66.41
+      },
       "verdict": "enriched FLINT-CPA macro 79.3/69.5/71.6 BEATS GRAMS+ published on recall (+7.4) and F1 (+5.2), loses precision; recall lever validated (gold-EL-advantaged caveat remains)."
     },
     "synthetic_cpa": "enriched recall ceilings hardtables 0.49 / wikidatatables 0.43 (value-match/snapshot bound; presence 0.98 unusable) -> still candidate-limited far below published 0.917/0.893. Enriched CPA F1 runs on synthetic sets PENDING."
@@ -133,31 +395,101 @@
   "multi_dataset": {
     "_note": "FLINT vs counting + GRAMS+ algorithm on IDENTICAL gold-entity inputs; published SOTA = each system's own pipeline (P2 EL), reference only.",
     "hardtables_R1_valid+test_3890tbl_gold": {
-      "cta_micro_cscore": {"counting": 0.895, "grams_plus_algorithm": 0.898, "flint": 0.944, "flint_std": 0.001,
-                            "sign_test_flint_vs_grams_algo": {"wins": 455, "losses": 97, "n": 552, "p": 0.0},
-                            "published_ref": {"MTab": 0.915, "GRAMS+": 0.906}},
-      "cpa_exact_microf1": {"support_vote": 0.462, "flint_threshold": 0.541, "flint_steiner": 0.545,
-                            "P": 0.943, "R": 0.379, "candidate_recall_ceiling": 0.398,
-                            "published_ref": {"MTab": 0.941, "GRAMS+": 0.917},
-                            "finding": "FLINT-CPA CANDIDATE-LIMITED on HardTables: statement-match relation candidates reach only 39.8% of gold properties (synthetic numeric tables + 2026 snapshot drift) -> realized R 0.379 ~ ceiling. Honest weak point; published systems use richer relation candidate gen. FLINT WINS CTA here but LOSES CPA."}
+      "cta_micro_cscore": {
+        "counting": 0.895,
+        "grams_plus_algorithm": 0.898,
+        "flint": 0.944,
+        "flint_std": 0.001,
+        "sign_test_flint_vs_grams_algo": {
+          "wins": 455,
+          "losses": 97,
+          "n": 552,
+          "p": 0.0
+        },
+        "published_ref": {
+          "MTab": 0.915,
+          "GRAMS+": 0.906
+        }
+      },
+      "cpa_exact_microf1": {
+        "support_vote": 0.462,
+        "flint_threshold": 0.541,
+        "flint_steiner": 0.545,
+        "P": 0.943,
+        "R": 0.379,
+        "candidate_recall_ceiling": 0.398,
+        "published_ref": {
+          "MTab": 0.941,
+          "GRAMS+": 0.917
+        },
+        "finding": "FLINT-CPA CANDIDATE-LIMITED on HardTables: statement-match relation candidates reach only 39.8% of gold properties (synthetic numeric tables + 2026 snapshot drift) -> realized R 0.379 ~ ceiling. Honest weak point; published systems use richer relation candidate gen. FLINT WINS CTA here but LOSES CPA."
+      }
     },
     "real_candidate_250wt_progression": {
       "_note": "FLINT real-cand CTA climbs with candidate-cache coverage; relative win over GRAMS+ algorithm always holds",
-      "57.5pct_cov": {"counting": 0.565, "grams_algo": 0.570, "flint": 0.626},
-      "78.2pct_cov": {"counting": 0.654, "grams_algo": 0.661, "flint": 0.733, "flint_std": 0.003,
-                      "sign_test": {"wins": 171, "losses": 63, "n": 234, "p": 1.66e-12}},
-      "converged_95.9pct_mention_cache_78.9pct_col_cov": {"counting": 0.661, "grams_algo": 0.666, "flint": 0.737, "flint_std": 0.002,
-                      "sign_test": {"wins": 169, "losses": 70, "n": 239, "p": 1.52e-10},
-                      "note": "column coverage plateaus ~79% (remaining columns have genuinely unlinkable cells); FLINT wins realistic-EL by +7pp"},
-      "gold_ceiling": 0.782, "published_ref_GRAMS+": 0.789
+      "57.5pct_cov": {
+        "counting": 0.565,
+        "grams_algo": 0.57,
+        "flint": 0.626
+      },
+      "78.2pct_cov": {
+        "counting": 0.654,
+        "grams_algo": 0.661,
+        "flint": 0.733,
+        "flint_std": 0.003,
+        "sign_test": {
+          "wins": 171,
+          "losses": 63,
+          "n": 234,
+          "p": 1.66e-12
+        }
+      },
+      "converged_95.9pct_mention_cache_78.9pct_col_cov": {
+        "counting": 0.661,
+        "grams_algo": 0.666,
+        "flint": 0.737,
+        "flint_std": 0.002,
+        "sign_test": {
+          "wins": 169,
+          "losses": 70,
+          "n": 239,
+          "p": 1.52e-10
+        },
+        "note": "column coverage plateaus ~79% (remaining columns have genuinely unlinkable cells); FLINT wins realistic-EL by +7pp"
+      },
+      "gold_ceiling": 0.782,
+      "published_ref_GRAMS+": 0.789
     },
     "wikidatatables_2023_R1_valid+test_10417tbl_gold": {
-      "cta_micro_cscore": {"counting": 0.892, "grams_plus_algorithm": 0.898, "flint": 0.911, "flint_std": 0.001,
-                            "sign_test_flint_vs_grams_algo": {"wins": 761, "losses": 727, "n": 1488, "p": 0.378, "verdict": "TIE/competitive (not significant)"},
-                            "published_ref": {"MTab": 0.941, "GRAMS+": 0.941}},
-      "cpa_exact_microf1": {"support_vote": 0.437, "flint_threshold": 0.504, "flint_steiner": 0.505, "P": 0.956, "R": 0.343,
-                            "published_ref": {"MTab": 0.922, "GRAMS+": 0.893},
-                            "finding": "CANDIDATE-LIMITED (R=0.343): statement-match relation candidates miss most gold properties on synthetic SemTab tables (dense relations + 2026 snapshot drift). Same pattern as HardTables."}
+      "cta_micro_cscore": {
+        "counting": 0.892,
+        "grams_plus_algorithm": 0.898,
+        "flint": 0.911,
+        "flint_std": 0.001,
+        "sign_test_flint_vs_grams_algo": {
+          "wins": 761,
+          "losses": 727,
+          "n": 1488,
+          "p": 0.378,
+          "verdict": "TIE/competitive (not significant)"
+        },
+        "published_ref": {
+          "MTab": 0.941,
+          "GRAMS+": 0.941
+        }
+      },
+      "cpa_exact_microf1": {
+        "support_vote": 0.437,
+        "flint_threshold": 0.504,
+        "flint_steiner": 0.505,
+        "P": 0.956,
+        "R": 0.343,
+        "published_ref": {
+          "MTab": 0.922,
+          "GRAMS+": 0.893
+        },
+        "finding": "CANDIDATE-LIMITED (R=0.343): statement-match relation candidates miss most gold properties on synthetic SemTab tables (dense relations + 2026 snapshot drift). Same pattern as HardTables."
+      }
     },
     "cpa_summary": "FLINT-CPA WINS on real-world 250WT (0.676 > GRAMS+ 0.664) but is candidate-limited on synthetic SemTab sets (HardTables 0.545, WikidataTables 0.505) where published systems use richer relation candidate generation. Honest limitation -> future work: richer relation candidates (SPARQL / qualifier-aware).",
     "tfood": "deferred (30k entities; KG warm is multi-day at API rate limit)"
@@ -167,9 +499,22 @@
     "protocol": "250WT P2 = each system's OWN entity linking (NOT gold); CTA approx m-AF, CPA exact m-F",
     "note": "verified by reading the artifact's own result h5 (not transcribed from the paper); aggregated cta-f/cpa-f",
     "250wt": {
-      "GRAMS+": {"cta_f": 0.7894, "cpa_f": 0.6641, "cta_p": 0.8054, "cta_r": 0.7826, "cpa_p": 0.8279, "cpa_r": 0.6206},
-      "DAGOBAH": {"cta_f": 0.7399, "cpa_f": 0.6184},
-      "MTab": {"cta_f": 0.6735, "cpa_f": 0.5402}
+      "GRAMS+": {
+        "cta_f": 0.7894,
+        "cpa_f": 0.6641,
+        "cta_p": 0.8054,
+        "cta_r": 0.7826,
+        "cpa_p": 0.8279,
+        "cpa_r": 0.6206
+      },
+      "DAGOBAH": {
+        "cta_f": 0.7399,
+        "cpa_f": 0.6184
+      },
+      "MTab": {
+        "cta_f": 0.6735,
+        "cpa_f": 0.5402
+      }
     },
     "el_confound_caveat": "these use each system's own EL; FLINT headline 0.782/0.676 uses GOLD entities, FLINT real-candgen (weak EL) 0.668 CTA. The clean METHOD comparison is FLINT vs GRAMS+ algorithm on IDENTICAL inputs (CTA 0.782 vs 0.732). Full-pipeline P2 numbers are EL-confounded; report both protocols.",
     "hardtables_artifact": "malformed/nan in artifact h5 -> use published SOTA_TABLE numbers instead"
@@ -180,23 +525,80 @@
     "generation_note": "local models: bf16, greedy, max_new_tokens=48, batched; parse-failure fallback = top-coverage candidate (= counting's pick, fair). All panel parse-failure <=3%.",
     "250wt": {
       "_frontier_API": {
-        "gpt-4o": {"cta_micro_cscore": 0.749, "cta_macro": 0.739, "cpa_micro_f1": 0.583, "cpa_P": 0.557, "cpa_R": 0.613},
-        "gemini-2.5-flash": {"cta_micro_cscore": 0.751, "cta_macro": 0.744, "cpa_micro_f1": 0.502, "cpa_P": 0.414, "cpa_R": 0.640}
+        "gpt-4o": {
+          "cta_micro_cscore": 0.749,
+          "cta_macro": 0.739,
+          "cpa_micro_f1": 0.583,
+          "cpa_P": 0.557,
+          "cpa_R": 0.613
+        },
+        "gemini-2.5-flash": {
+          "cta_micro_cscore": 0.751,
+          "cta_macro": 0.744,
+          "cpa_micro_f1": 0.502,
+          "cpa_P": 0.414,
+          "cpa_R": 0.64
+        }
       },
       "_open_local_panel": {
-        "Qwen2.5-7B-Instruct": {"cta_micro_cscore": 0.715, "cta_macro": 0.703, "cpa_micro_f1": 0.480, "cpa_P": 0.456, "cpa_R": 0.506, "parse_fail": 0.001},
-        "Llama-3.1-8B-Instruct": {"cta_micro_cscore": 0.709, "cta_macro": 0.708, "cpa_micro_f1": 0.306, "cpa_P": 0.221, "cpa_R": 0.499, "parse_fail": 0.000},
-        "Ministral-8B-Instruct-2410": {"cta_micro_cscore": 0.691, "cta_macro": 0.686, "cpa_micro_f1": 0.376, "cpa_P": 0.547, "cpa_R": 0.286, "parse_fail": 0.004},
-        "gemma-2-9b-it": {"cta_micro_cscore": 0.679, "cta_macro": 0.673, "cpa_micro_f1": 0.430, "cpa_P": 0.348, "cpa_R": 0.562, "parse_fail": 0.025},
-        "Mistral-7B-Instruct-v0.2": {"cta_micro_cscore": 0.598, "cta_macro": 0.593, "cpa_micro_f1": 0.303, "cpa_P": 0.342, "cpa_R": 0.272, "parse_fail": 0.030},
-        "Qwen2.5-3B-Instruct": {"cta_micro_cscore": 0.567, "cta_macro": 0.558, "cpa_micro_f1": 0.375, "cpa_P": 0.496, "cpa_R": 0.301, "parse_fail": 0.001}
+        "Qwen2.5-7B-Instruct": {
+          "cta_micro_cscore": 0.715,
+          "cta_macro": 0.703,
+          "cpa_micro_f1": 0.48,
+          "cpa_P": 0.456,
+          "cpa_R": 0.506,
+          "parse_fail": 0.001
+        },
+        "Llama-3.1-8B-Instruct": {
+          "cta_micro_cscore": 0.709,
+          "cta_macro": 0.708,
+          "cpa_micro_f1": 0.306,
+          "cpa_P": 0.221,
+          "cpa_R": 0.499,
+          "parse_fail": 0.0
+        },
+        "Ministral-8B-Instruct-2410": {
+          "cta_micro_cscore": 0.691,
+          "cta_macro": 0.686,
+          "cpa_micro_f1": 0.376,
+          "cpa_P": 0.547,
+          "cpa_R": 0.286,
+          "parse_fail": 0.004
+        },
+        "gemma-2-9b-it": {
+          "cta_micro_cscore": 0.679,
+          "cta_macro": 0.673,
+          "cpa_micro_f1": 0.43,
+          "cpa_P": 0.348,
+          "cpa_R": 0.562,
+          "parse_fail": 0.025
+        },
+        "Mistral-7B-Instruct-v0.2": {
+          "cta_micro_cscore": 0.598,
+          "cta_macro": 0.593,
+          "cpa_micro_f1": 0.303,
+          "cpa_P": 0.342,
+          "cpa_R": 0.272,
+          "parse_fail": 0.03
+        },
+        "Qwen2.5-3B-Instruct": {
+          "cta_micro_cscore": 0.567,
+          "cta_macro": 0.558,
+          "cpa_micro_f1": 0.375,
+          "cpa_P": 0.496,
+          "cpa_R": 0.301,
+          "parse_fail": 0.001
+        }
       },
       "_open_models_attempted_but_stack_incompatible": {
         "Qwen-14B-Chat": "ImportError: transformers_stream_generator needs transformers.BeamSearchScorer (removed in installed version)",
         "gpt-oss-20b": "RuntimeError: CUDA device-side assert loading MoE/mxfp4 weights (needs special loader)",
         "Phi-3-medium-4k-instruct": "AttributeError: DynamicCache.seen_tokens (remote modeling code predates installed transformers)"
       },
-      "FLINT_ref": {"cta": 0.782, "cpa_steiner": 0.676}
+      "FLINT_ref": {
+        "cta": 0.782,
+        "cpa_steiner": 0.676
+      }
     },
     "no_anthropic": "user directive: do not use Anthropic models as a baseline for this project",
     "finding": "FLINT (46KB GBM) BEATS 2 frontier LLMs (GPT-4o, Gemini-2.5-flash) AND 6 open instruct models (Qwen2.5-7B/3B, Llama-3.1-8B, gemma-2-9b, Ministral-8B, Mistral-7B) on BOTH tasks given IDENTICAL candidates. CTA: FLINT 0.782 > Gemini 0.751 > GPT-4o 0.749 > Qwen2.5-7B 0.715 > Llama-3.1-8B 0.709 > Ministral 0.691 > gemma-2 0.679 > Mistral-7B 0.598 > Qwen2.5-3B 0.567. CPA: FLINT 0.676 > GPT-4o 0.583 > Gemini 0.502 > Qwen2.5-7B 0.480 > gemma-2 0.430 > Ministral 0.376 > Qwen2.5-3B 0.375 > Llama-3.1-8B 0.306 > Mistral-7B 0.303. Headline: a 46KB gradient-boosted ranker outperforms 8 LLMs (2 frontier + 6 open, 3B-9B) at constrained STI selection on both tasks. (Best open model Qwen2.5-7B trails FLINT by 6.7pt CTA / 19.6pt CPA.)"
@@ -206,7 +608,7 @@
     "node": "ckg08 CPU",
     "dataset_load_s": 6.8,
     "sbert_encode_all_labels_s_one_time": 30.9,
-    "cta_gbm_fit_s": 0.10,
+    "cta_gbm_fit_s": 0.1,
     "cta_gbm_fit_rows": 45258,
     "cta_gbm_fit_features": 11,
     "cta_gbm_inference_s": 0.004,
@@ -220,9 +622,17 @@
       "metric": "micro cscore, seed 0",
       "full": 0.783,
       "leave_one_out_drop": {
-        "anc_coverage": 0.004, "direct_coverage": 0.004, "cov_rank": 0.005, "is_mode": 0.006,
-        "is_ancestor_of_mode": 0.001, "hops_above_mode": 0.008, "n_ancestors": 0.003,
-        "header_cos": 0.002, "context_cos": 0.005, "entity_cos": 0.004, "freq_prior": 0.001
+        "anc_coverage": 0.004,
+        "direct_coverage": 0.004,
+        "cov_rank": 0.005,
+        "is_mode": 0.006,
+        "is_ancestor_of_mode": 0.001,
+        "hops_above_mode": 0.008,
+        "n_ancestors": 0.003,
+        "header_cos": 0.002,
+        "context_cos": 0.005,
+        "entity_cos": 0.004,
+        "freq_prior": 0.001
       },
       "finding": "no single feature dominates (max drop 0.008); the win is the COMBINATION"
     },
@@ -231,9 +641,17 @@
       "metric": "argmax-recall on reachable gold pairs, seed 0",
       "full": 0.906,
       "leave_one_out_drop": {
-        "entity_support": 0.000, "literal_support": 0.002, "total_support": 0.009, "support_rank": -0.002,
-        "n_candidates": 0.012, "subject_coverage": -0.005, "obj_is_entity": -0.002, "header_obj_cos": 0.000,
-        "header_subj_cos": -0.007, "freq_prior": 0.007, "is_subject_col": -0.009
+        "entity_support": 0.0,
+        "literal_support": 0.002,
+        "total_support": 0.009,
+        "support_rank": -0.002,
+        "n_candidates": 0.012,
+        "subject_coverage": -0.005,
+        "obj_is_entity": -0.002,
+        "header_obj_cos": 0.0,
+        "header_subj_cos": -0.007,
+        "freq_prior": 0.007,
+        "is_subject_col": -0.009
       },
       "finding": "ranker argmax-recall 0.906 (near candidate ceiling); top features n_candidates/total_support/freq_prior"
     }
@@ -241,5 +659,47 @@
   "pending_cache_gated": {
     "real_candidate_full_coverage": "candidate cache warming ~10 lookups/min (Wikidata API rate limit); 22593 mentions total",
     "toughtables_cta": "needs separate ToughTables candidate cache (unwarmed); same rate-limit gate"
+  },
+  "SIGNIFICANCE_realEL_P1_250wt": {
+    "_note": "W1 fix (reviewer). PAIRED per-table sign test + bootstrap CI on the STANDARD end-to-end P1 protocol: FLINT real top-1 EL vs GRAMS+/MTab/DAGOBAH each under its OWN EL (no gold-EL advantage). Same field-standard test GRAMS+ used. command: scripts/flint_cpa_ranker.py --entities candgen ; scripts/sig_vs_sota.py --real-el. n=250, header-alignment 238/250 (95%).",
+    "task": "CPA",
+    "protocol": "real-EL / own-EL each system (P1, no oracle)",
+    "flint_pertable_mean_F1": 0.6956,
+    "flint_micro_F1": 0.65,
+    "flint_micro_F1_std": 0.009,
+    "vs_GRAMS+": {
+      "their": 0.6641,
+      "dF": 0.0315,
+      "ci95": [
+        -0.007,
+        0.071
+      ],
+      "sign": "92W/75L",
+      "p": 0.188,
+      "verdict": "tie (n.s.)"
+    },
+    "vs_MTab": {
+      "their": 0.5402,
+      "dF": 0.1555,
+      "ci95": [
+        0.112,
+        0.2
+      ],
+      "sign": "127W/60L",
+      "p": 9.61e-07,
+      "verdict": "FLINT wins"
+    },
+    "vs_DAGOBAH": {
+      "their": 0.6184,
+      "dF": 0.0773,
+      "ci95": [
+        0.039,
+        0.116
+      ],
+      "sign": "119W/68L",
+      "p": 0.000192,
+      "verdict": "FLINT wins"
+    },
+    "headline": "Under matched real-EL (each system own EL, no oracle), FLINT-CPA is a paired-tested statistical TIE with GRAMS+ (dF +0.032, p=0.19, 95% CI includes 0) and SIGNIFICANTLY beats MTab and DAGOBAH. Controlled result, not a gold-EL upper bound."
   }
 }

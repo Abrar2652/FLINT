@@ -1,0 +1,29 @@
+##### CPA hardtables (post-fix) #####
+  GRAMS+-table cells (FLINT+Steiner, hardtables):
+    micro  P/R/F = 0.978 / 0.959 / 0.968
+    macro  P/R/F = 0.969 / 0.962 / 0.965
+  support-vote macro P/R/F = 0.898 / 0.923 / 0.902
+------------------------------------------------------------------
+##### CTA hardtables (post-fix) #####
+hardtables CTA | gold entities | m-P / m-R / m-F
+  method                  micro-P  micro-R  micro-F |  macro-P  macro-R  macro-F
+  counting                  0.915    0.915    0.915 |    0.797    0.910    0.833
+  GRAMS+ algorithm          0.919    0.919    0.919 |    0.801    0.915    0.838
+  FLINT (ours)              0.949    0.949    0.949 |    0.827    0.945    0.865
+================================================================
+hardtables CTA | gold entities | identical candidate gen | micro cscore
+##### CPA wikidatatables (post-fix) #####
+  GRAMS+-table cells (FLINT+Steiner, wikidatatables):
+    micro  P/R/F = 0.966 / 0.963 / 0.964
+    macro  P/R/F = 0.961 / 0.964 / 0.960
+  support-vote macro P/R/F = 0.871 / 0.943 / 0.893
+------------------------------------------------------------------
+##### CTA wikidatatables (post-fix) #####
+wikidatatables CTA | gold entities | m-P / m-R / m-F
+  method                  micro-P  micro-R  micro-F |  macro-P  macro-R  macro-F
+  counting                  0.925    0.924    0.924 |    0.832    0.918    0.860
+  GRAMS+ algorithm          0.933    0.932    0.932 |    0.842    0.927    0.869
+  FLINT (ours)              0.937    0.936    0.937 |    0.844    0.931    0.872
+================================================================
+wikidatatables CTA | gold entities | identical candidate gen | micro cscore
+ALLDONE

@@ -1,0 +1,13 @@
+##### CPA hardtables (enriched) #####
+  GRAMS+-table cells (FLINT+Steiner, hardtables):
+    micro  P/R/F = 0.920 / 0.470 / 0.622
+    macro  P/R/F = 0.540 / 0.476 / 0.497
+  support-vote macro P/R/F = 0.429 / 0.461 / 0.424
+------------------------------------------------------------------
+##### CPA wikidatatables (enriched) #####
+  GRAMS+-table cells (FLINT+Steiner, wikidatatables):
+    micro  P/R/F = 0.907 / 0.403 / 0.558
+    macro  P/R/F = 0.472 / 0.419 / 0.436
+  support-vote macro P/R/F = 0.395 / 0.425 / 0.392
+------------------------------------------------------------------
+ALLDONE

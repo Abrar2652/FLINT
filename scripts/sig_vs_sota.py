@@ -67,8 +67,9 @@ def bootstrap(diffs, B=5000):
     return means[int(0.025 * B)], means[int(0.975 * B)]
 
 
-def run(task):
-    flint = json.loads(Path(f"experiments/flint/pertable_{task}_250wt.json").read_text())
+def run(task, flint_file=None, proto="oracle-EL"):
+    fpath = Path(flint_file) if flint_file else Path(f"experiments/flint/pertable_{task}_250wt.json")
+    flint = json.loads(fpath.read_text())
     recs = list(load_dataset("250wt"))
     art, art_hdr = artifact_pertable(task)
     # align by load-order index; verify header signature agreement rate
@@ -87,7 +88,7 @@ def run(task):
         flint_means.append(ff)
         for s in SYS:
             paired[s].append((ff, art[i][s]))
-    print(f"\n=== {task.upper()} (250WT, per-table, n={len(flint_means)}) ===")
+    print(f"\n=== {task.upper()} [{proto}] (250WT, per-table, n={len(flint_means)}) ===")
     print(f"  header-alignment check: {agree}/{tot} match ({agree/max(tot,1):.0%})")
     print(f"  FLINT mean per-table F1: {sum(flint_means)/len(flint_means):.4f}")
     for s in SYS:
@@ -105,8 +106,16 @@ def run(task):
 
 
 def main():
-    for task in ["cta", "cpa"]:
-        run(task)
+    import sys
+    if "--real-el" in sys.argv:
+        # W1 fix: paired significance + bootstrap CI on the standard end-to-end (each
+        # system its OWN EL) P1 comparison -- FLINT real top-1 EL vs GRAMS+/MTab/DAGOBAH.
+        # This tests whether the 0.654-vs-0.664 CPA gap is significant (reviewer W1).
+        run("cpa", "experiments/flint/pertable_cpa_250wt_candgen.json",
+            "real-EL P1: FLINT top-1 EL vs each system own-EL")
+    else:
+        for task in ["cta", "cpa"]:
+            run(task)
 
 
 if __name__ == "__main__":

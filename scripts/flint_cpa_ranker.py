@@ -496,7 +496,10 @@ def main() -> None:
         r_ = tp / (tp + fn) if tp + fn else 0.0
         _pt[tid] = {"f": (2 * p_ * r_ / (p_ + r_) if p_ + r_ else 0.0), "hdr": _hdr.get(tid, "")}
     _os.makedirs("experiments/flint", exist_ok=True)
-    open(f"experiments/flint/pertable_cpa_{args.dataset}.json", "w").write(_json.dumps(_pt))
+    # protocol-aware filename so gold-EL and real-EL(candgen) dumps coexist for the
+    # matched vs oracle paired significance tests (do not clobber one with the other)
+    _suffix = "" if args.entities == "gold" else f"_{args.entities}"
+    open(f"experiments/flint/pertable_cpa_{args.dataset}{_suffix}.json", "w").write(_json.dumps(_pt))
 
     import random
     rng_b = random.Random(0)

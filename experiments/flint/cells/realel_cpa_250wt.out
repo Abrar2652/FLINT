@@ -1,0 +1,26 @@
+/nas/ckgfs/jaunts/jahin/flint/src/flint/graph/features.py:67: FutureWarning: The `get_sentence_embedding_dimension` method has been renamed to `get_embedding_dimension`.
+  self.dim = self._model.get_sentence_embedding_dimension()
+==================================================================
+  [TABLE-2 targets-given] FLINT CPA: micro-F1 = 0.732 +/- 0.003 | macro-F1 = 0.768
+     (predict argmax property for GOLD pairs; no pair-detection FP/FN)
+==================================================================
+250wt CPA | REAL candgen top-1 EL | identical candidate gen | exact micro-F1
+------------------------------------------------------------------
+  support-vote baseline (non-learned, identical cands): 0.370 +/- 0.003
+  [ref] published CPA (diff protocol): GRAMS+ 0.664 (m-F)
+  candidate-property recall ceiling (2026 cache)      : 0.734
+  GRAMS+ Steiner decode (same scores, arborescence)  = 0.654 +/- 0.008  (P=0.757 R=0.576)
+  FLINT-CPA threshold decode (ours)          micro-F1 = 0.622 +/- 0.010  (P=0.727 R=0.545)
+  FLINT-CPA @ oracle threshold (ceiling diag) micro-F1 = 0.705
+------------------------------------------------------------------
+  GRAMS+-table cells (FLINT+Steiner, 250wt):
+    micro  P/R/F = 0.757 / 0.576 / 0.654
+    macro  P/R/F = 0.770 / 0.664 / 0.688
+  support-vote macro P/R/F = 0.404 / 0.482 / 0.384
+------------------------------------------------------------------
+  (Steiner vs threshold use IDENTICAL per-link scores -> isolates the
+   global-inference step. GRAMS+'s published 0.664 also used a trained
+   MLP scorer on the 2023 snapshot; here both share FLINT's scorer.)
+  bootstrap FLINT+Steiner > FLINT-threshold: 1.000 (median dF1=+0.034)
+  bootstrap FLINT+Steiner > support-vote: 1.000 (median dF1=+0.288)
+==================================================================
