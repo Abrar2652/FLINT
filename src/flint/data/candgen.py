@@ -77,7 +77,8 @@ class CachedCandidateGenerator:
         url = f"{_API}?{urllib.parse.urlencode(params)}"
         last = None
         for attempt in range(retries):
-            req = urllib.request.Request(url, headers={"User-Agent": "ocgnn-research/0.1 (research)"})
+            req = urllib.request.Request(url, headers={"User-Agent":
+                "flint-research/1.0 (academic STI benchmark; contact abrar.jahin.2652@gmail.com)"})
             try:
                 with urllib.request.urlopen(req, timeout=self.timeout) as resp:
                     payload = json.loads(resp.read().decode())
