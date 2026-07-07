@@ -170,7 +170,7 @@ def fig_el_gap():
     # (label, [CTA, CPA], colour, hatch)  -- FLINT solid; published SOTA (own EL) hatched
     series = [
         ("FLINT (gold EL)", [0.782, 0.676], FLINT_C, None),
-        ("FLINT (real EL)", [0.737, 0.654], ORANGE, None),
+        ("FLINT (real EL)", [0.744, 0.662], ORANGE, None),
         ("GRAMS+",  [S["cta"]["vs_GRAMS+"]["their"],  S["cpa"]["vs_GRAMS+"]["their"]],  SKY,  "//"),
         ("DAGOBAH", [S["cta"]["vs_DAGOBAH"]["their"], S["cpa"]["vs_DAGOBAH"]["their"]], GREEN, "//"),
         ("MTab",    [S["cta"]["vs_MTab"]["their"],    S["cpa"]["vs_MTab"]["their"]],    PURP, "//"),
@@ -182,7 +182,7 @@ def fig_el_gap():
         for r in bars:
             ax.annotate(f"{r.get_height():.2f}", (r.get_x()+r.get_width()/2, r.get_height()),
                         textcoords="offset points", xytext=(0, 1.5), ha="center", fontsize=5.4, rotation=90)
-    ax.annotate("real-EL FLINT-CPA ties GRAMS+,\nbeats DAGOBAH & MTab (all own-EL)", xy=(1 - 1.5*w, 0.654),
+    ax.annotate("real-EL FLINT-CPA ties GRAMS+,\nbeats DAGOBAH & MTab (all own-EL)", xy=(1 - 1.5*w, 0.662),
                 xytext=(1.05, 0.86), ha="center", fontsize=6.4, color="#9A6B00",
                 arrowprops=dict(arrowstyle="-|>", color="#9A6B00", lw=0.9))
     ax.set_xticks(x); ax.set_xticklabels(["CTA (cscore)", "CPA (micro-F1)"])
@@ -196,13 +196,13 @@ def fig_el_gap():
 def fig_coverage_traj():
     """Real-EL CTA climbs monotonically with candidate coverage then plateaus, localizing the gap to EL not the ranker."""
     prog = RES["multi_dataset"]["real_candidate_250wt_progression"]
-    xs = [57.5, 78.2, 78.9]
+    xs = [57.5, 78.2, 79.5]
     flint = [prog["57.5pct_cov"]["flint"], prog["78.2pct_cov"]["flint"],
-             prog["converged_95.9pct_mention_cache_78.9pct_col_cov"]["flint"]]
+             prog["warmed_83.4pct_mention_79.5pct_col_cov"]["flint"]]
     grams = [prog["57.5pct_cov"]["grams_algo"], prog["78.2pct_cov"]["grams_algo"],
-             prog["converged_95.9pct_mention_cache_78.9pct_col_cov"]["grams_algo"]]
+             prog["warmed_83.4pct_mention_79.5pct_col_cov"]["grams_algo"]]
     count = [prog["57.5pct_cov"]["counting"], prog["78.2pct_cov"]["counting"],
-             prog["converged_95.9pct_mention_cache_78.9pct_col_cov"]["counting"]]
+             prog["warmed_83.4pct_mention_79.5pct_col_cov"]["counting"]]
     fig, ax = plt.subplots(figsize=(4.5, 3.3))
     ax.plot(xs, flint, "-", color=FLINT_C, lw=2.0, zorder=3)
     ax.scatter(xs, flint, s=70, color=FLINT_C, marker="D", zorder=4, **EDGE)
@@ -212,7 +212,7 @@ def fig_coverage_traj():
     ax.scatter(xs, count, s=45, color=GREY, marker="^", zorder=3, **EDGE)
     ax.axhline(0.782, color=FLINT_C, lw=1.1, ls=(0, (4, 3)), alpha=0.7)
     ax.text(60.5, 0.788, "gold-entity ceiling 0.782", fontsize=7, color=BLK, ha="center")
-    ax.annotate("plateau (unlinkable\ncolumns ~21%)", (78.9, flint[-1]), textcoords="offset points",
+    ax.annotate("plateau (unlinkable\ncolumns ~21%)", (79.5, flint[-1]), textcoords="offset points",
                 xytext=(-4, -28), fontsize=7, ha="right", color=BLK)
     ax.set_xlabel("candidate-cache column coverage (%)")
     ax.set_ylabel("250WT CTA (cscore)")
